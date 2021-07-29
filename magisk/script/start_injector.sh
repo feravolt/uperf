@@ -3,6 +3,7 @@
 # https://github.com/yc9559/
 # Author: Matt Yang
 # Version: 20210225
+# FeraVolt: Don't allow selinux switches
 
 BASEDIR="$(dirname "$0")"
 . $BASEDIR/pathinfo.sh
@@ -41,25 +42,7 @@ inj_do_inject()
 
     "$MODULE_PATH/$INJ_REL/$INJ_NAME" "$lib_path" >> "$LOG_FILE"
 
-    if [ "$?" != "0" ]; then
-        if [ -f "$FLAGS/allow_permissive" ]; then
-            log "Set SELinux permissive, retry..."
-            local sestate
-            sestate="$(getenforce)"
-            setenforce 0
-            "$MODULE_PATH/$INJ_REL/$INJ_NAME" "$lib_path" >> "$LOG_FILE"
-            if [ "$sestate" == "Enforcing" ]; then
-                log "Resume SELinux enforcing"
-                setenforce 1
-            fi
-        else
-            log "Not allowed to set SELinux permissive, failed to retry"
-        fi
-    fi
-
     sleep 1
-    logcat -d | grep -i "$3" >> "$LOG_FILE"
-
     log "[end] injecting $2 to $1"
     log ""
 }

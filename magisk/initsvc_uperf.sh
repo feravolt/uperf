@@ -3,6 +3,7 @@
 # https://github.com/yc9559/
 # Author: Matt Yang
 # Version: 20200401
+# FeraVolt: No logs, we're good
 
 BASEDIR="$(dirname $(readlink -f "$0"))"
 
@@ -25,10 +26,6 @@ wait_until_login()
 
 crash_recuser()
 {
-    rm $BASEDIR/logcat.log
-    logcat -f $BASEDIR/logcat.log &
-    sleep 60
-    killall logcat
     rm -f $BASEDIR/flags/.need_recuser
 }
 
