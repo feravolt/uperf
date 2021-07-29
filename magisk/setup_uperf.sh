@@ -418,8 +418,6 @@ uperf_install()
 injector_install()
 {
     echo "- Installing injector"
-    echo "- SELinux may be set PERMISSIVE for better compatibility"
-    echo "- To keep ENFORCING, please delete flags/allow_permissive"
 
     local src_path
     local dst_path
@@ -456,7 +454,7 @@ powerhal_stub_install()
 
 busybox_install()
 {
-    echo "- Installing private busybox"
+    echo "- Installing private brutal busybox"
 
     local dst_path
     dst_path="$BASEDIR/bin/busybox/"
