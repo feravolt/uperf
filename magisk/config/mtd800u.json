@@ -1,0 +1,517 @@
+{
+    "meta": {
+        "name": "Dimensity 800U(mt6853t)[21.07.25]",
+        "author": "yc@coolapk",
+        "features": "touch cpuload render standby sfanalysis ssanalysis dispfeature"
+    },
+    "common": {
+        "verboseLog": {
+            "note": "用于调试的详细日志",
+            "enable": false
+        },
+        "switchInode": {
+            "note": "接收性能模式切换的inode节点",
+            "path": "/sdcard/yc/uperf/cur_powermode"
+        },
+        "inputReader": {
+            "note": "用户输入读取提供触摸按下/点击/滑动hint。sampleIntervalMinMs:最小用户输入采样间隔。swipeThdPct:滑动大于此相对距离阈值认为是滑动操作。gesturePctX:全面屏手势识别起始坐标X轴阈值。gesturePctY:全面屏手势识别起始坐标X轴阈值。gestureDelayMs:全面屏手势退出延时。holdEnterMs:长时间保持触摸的时长。",
+            "enable": true,
+            "sampleIntervalMinMs": 20,
+            "swipeThdPct": 0.04,
+            "gesturePctX": 0.04,
+            "gesturePctY": 0.03,
+            "gestureDelayMs": 3000,
+            "holdEnterMs": 1000
+        },
+        "loadMonitor": {
+            "note": "系统负载监视器提供重负载hint。load:系统负载为所有核心的负载总和，单个核心负载=频率(Ghz)*效率(A53@1.0g为100)*负载(%)。heavyLoad:进入HeavyLoad的系统负载阈值。idleLoad:退出HeavyLoad的系统负载阈值。requestBurstSlackMs:在上一次HeavyLoad结束后，且在requestBurstSlack时间内没有HeavyLoad请求，才能响应新的HeavyLoad。",
+            "enable": false,
+            "sampleIntervalMinMs": 100,
+            "heavyLoad": 1420,
+            "idleLoad": 950,
+            "requestBurstSlackMs": 3000
+        },
+        "sfAnalysis": {
+            "note": "surfaceflinger分析器提供渲染开始/结束/滞后hint。boostCntMax:SfBoost可用次数缓存上限。boostGrowQuantumMs:每满此间隔没有SfBoost请求，则SfBoost可用次数+1。renderIdleSlackMs:进入渲染结束状态前的滞后时长。",
+            "enable": true,
+            "boostCntMax": 50,
+            "boostGrowQuantumMs": 100,
+            "renderIdleSlackMs": 1
+        },
+        "ssAnalysis": {
+            "note": "system_server分析器提供系统过渡动画开始/结束hint。",
+            "enable": true
+        },
+        "uxAffinity": {
+            "note": "UX线程自动设置，固定高优先级的UX线程到大核，并限制低优先级线程的需求响应",
+            "enable": true
+        },
+        "dispFeature": {
+            "note": "动态屏幕刷新率。path:白名单配置文件路径。rampDownDelayMs:降低屏幕刷新率前延时，降低频繁切换对视觉效果的影响。",
+            "enable": true,
+            "path": "/sdcard/yc/uperf/cfg_uperf_display.txt",
+            "rampDownDelayMs": 2000
+        },
+        "dispatch": [
+            {
+                "hint": "None",
+                "action": "normal",
+                "maxDuration": 0,
+                "note": "无Hint的常规状态"
+            },
+            {
+                "hint": "Active",
+                "action": "active",
+                "maxDuration": 0,
+                "note": "屏幕渲染刷新时切换的Hint"
+            },
+            {
+                "hint": "Touch",
+                "action": "interaction",
+                "maxDuration": 0,
+                "note": "触摸到屏幕切换的Hint"
+            },
+            {
+                "hint": "Pressed",
+                "action": "pressed",
+                "maxDuration": 0,
+                "note": "按住屏幕切换的Hint"
+            },
+            {
+                "hint": "Tap",
+                "action": "interaction",
+                "maxDuration": 2000,
+                "note": "点击松开屏幕切换的Hint"
+            },
+            {
+                "hint": "Swipe",
+                "action": "interaction",
+                "maxDuration": 4000,
+                "note": "在屏幕滑动一段距离松开后切换的Hint"
+            },
+            {
+                "hint": "HeavyLoad",
+                "action": "heavyLoad",
+                "maxDuration": 2000,
+                "note": "在Tap或Swipe检测到重负载后切换，负载降低后回落到Tap"
+            },
+            {
+                "hint": "SfLag",
+                "action": "sfLag",
+                "maxDuration": 20,
+                "note": "给Surfaceflinger的渲染提交出现滞后的Hint，滞后的渲染完成后会提前退出"
+            },
+            {
+                "hint": "SfBoost",
+                "action": "sfBoost",
+                "maxDuration": 100,
+                "note": "同SfLag，针对某些重负载场景"
+            },
+            {
+                "hint": "SsAnim",
+                "action": "heavyLoad",
+                "maxDuration": 300,
+                "note": "系统过渡动画的Hint"
+            },
+            {
+                "hint": "Wakeup",
+                "action": "heavyLoad",
+                "maxDuration": 1500,
+                "note": "屏幕点亮Hint"
+            }
+        ],
+        "stateTransition": {
+            "note": "Hint状态转移表，key为源状态，value为目的状态列表（按优先级降序排列），不含状态退出转移",
+            "None": [
+                "Wakeup",
+                "Touch",
+                "Pressed",
+                "Tap",
+                "Swipe",
+                "Active"
+            ],
+            "Active": [
+                "Wakeup",
+                "Touch",
+                "Pressed",
+                "Tap",
+                "Swipe"
+            ],
+            "Touch": [
+                "Wakeup",
+                "SsAnim",
+                "SfLag",
+                "HeavyLoad"
+            ],
+            "Pressed": [
+                "SsAnim",
+                "SfBoost"
+            ],
+            "Tap": [
+                "SsAnim",
+                "SfLag",
+                "HeavyLoad"
+            ],
+            "Swipe": [
+                "SsAnim",
+                "SfLag",
+                "HeavyLoad"
+            ],
+            "HeavyLoad": [
+                "SfBoost"
+            ],
+            "SfLag": [],
+            "SfBoost": [],
+            "SsAnim": [
+                "SfBoost"
+            ],
+            "Wakeup": [
+                "SfBoost"
+            ]
+        }
+    },
+    "platform": {
+        "noteClusterCpuId": "集群的CPU代表id",
+        "clusterCpuId": [
+            0,
+            6
+        ],
+        "noteEfficiency": "每个CPU核心的的相对同频性能，以Cortex-A53@1.0g为100",
+        "efficiency": [
+            115,
+            115,
+            115,
+            115,
+            115,
+            115,
+            250,
+            250
+        ],
+        "knobs": [
+            {
+                "name": "schedBoost",
+                "path": "/sys/devices/system/cpu/sched/sched_boost",
+                "type": "string",
+                "enable": true,
+                "note": "异构调度器全局任务放置boost，不考虑能耗代价"
+            },
+            {
+                "name": "topBoost",
+                "path": "/dev/stune/top-app/schedtune.boost",
+                "type": "string",
+                "enable": true,
+                "note": "正在交互的App的schedtune.boost"
+            },
+            {
+                "name": "heavyBoost",
+                "path": "/dev/stune/rt/schedtune.boost",
+                "type": "string",
+                "enable": true,
+                "note": "重负载线程的schedtune.boost"
+            },
+            {
+                "name": "uxAffinity",
+                "path": "placeholder",
+                "type": "uxaffinity",
+                "enable": true,
+                "note": "0=idle，1=active，2=pulse，3=heavy，4=unlimited"
+            },
+            {
+                "name": "dispFeature",
+                "path": "placeholder",
+                "type": "dispfeature",
+                "enable": true,
+                "note": "0=空闲，1=活动，2=正在交互"
+            },
+            {
+                "name": "ppmPolicy",
+                "path": "/proc/ppm/policy_status",
+                "note": "MTK power policy子功能开关",
+                "type": "string",
+                "enable": true
+            },
+            {
+                "name": "cpuFreqMin0",
+                "path": "/proc/ppm/policy/hard_userlimit_min_cpu_freq",
+                "note": "MTK power policy manager最小频率",
+                "type": "string",
+                "enable": true
+            },
+            {
+                "name": "cpuFreqMax0",
+                "path": "/proc/ppm/policy/hard_userlimit_max_cpu_freq",
+                "note": "MTK power policy manager最大频率",
+                "type": "string",
+                "enable": true
+            },
+            {
+                "name": "cpuFreqMin1",
+                "path": "/proc/ppm/policy/hard_userlimit_min_cpu_freq",
+                "note": "MTK power policy manager最小频率",
+                "type": "string",
+                "enable": true
+            },
+            {
+                "name": "cpuFreqMax1",
+                "path": "/proc/ppm/policy/hard_userlimit_max_cpu_freq",
+                "note": "MTK power policy manager最大频率",
+                "type": "string",
+                "enable": true
+            }
+        ]
+    },
+    "powermodes": [
+        {
+            "name": "balance",
+            "note": "均衡模式，比原厂略流畅的同时略省电",
+            "actions": {
+                "normal": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "0",
+                    "dispFeature": "0",
+                    "cpuFreqMin0": "0 100000",
+                    "cpuFreqMax0": "0 1600000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "4 1"
+                },
+                "active": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "0",
+                    "dispFeature": "1",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 1700000",
+                    "cpuFreqMin1": "1 1000000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "interaction": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "10",
+                    "uxAffinity": "1",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 1100000",
+                    "cpuFreqMax0": "0 1700000",
+                    "cpuFreqMin1": "1 1000000",
+                    "cpuFreqMax1": "1 2100000",
+                    "ppmPolicy": "6 1"
+                },
+                "pressed": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "10",
+                    "uxAffinity": "1",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 1100000",
+                    "cpuFreqMax0": "0 1700000",
+                    "cpuFreqMin1": "1 1000000",
+                    "cpuFreqMax1": "1 2100000",
+                    "ppmPolicy": "6 1"
+                },
+                "heavyLoad": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "10",
+                    "uxAffinity": "3",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 1100000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 1500000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfLag": {
+                    "uxAffinity": "1",
+                    "cpuFreqMin0": "0 1100000",
+                    "cpuFreqMax0": "0 1700000",
+                    "cpuFreqMin1": "1 1000000",
+                    "cpuFreqMax1": "1 2100000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfBoost": {
+                    "topBoost": "0",
+                    "heavyBoost": "10",
+                    "uxAffinity": "2",
+                    "cpuFreqMin0": "0 1100000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 2400000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                }
+            }
+        },
+        {
+            "name": "powersave",
+            "note": "卡顿模式，保证基本流畅的同时尽可能降低功耗",
+            "actions": {
+                "normal": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "0",
+                    "dispFeature": "0",
+                    "cpuFreqMin0": "0 100000",
+                    "cpuFreqMax0": "0 1400000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 1600000",
+                    "ppmPolicy": "4 1"
+                },
+                "active": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "0",
+                    "dispFeature": "1",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 1600000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 1400000",
+                    "ppmPolicy": "6 1"
+                },
+                "interaction": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "1",
+                    "uxAffinity": "1",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 1600000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 1200000",
+                    "ppmPolicy": "6 1"
+                },
+                "pressed": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "1",
+                    "uxAffinity": "1",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 1800000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 1600000",
+                    "ppmPolicy": "6 1"
+                },
+                "heavyLoad": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "1",
+                    "uxAffinity": "3",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 900000",
+                    "cpuFreqMax1": "1 1800000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfLag": {
+                    "uxAffinity": "1",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 1600000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 1200000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfBoost": {
+                    "topBoost": "0",
+                    "heavyBoost": "1",
+                    "uxAffinity": "2",
+                    "cpuFreqMin0": "0 700000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 1800000",
+                    "cpuFreqMax1": "1 2300000",
+                    "ppmPolicy": "6 1"
+                }
+            }
+        },
+        {
+            "name": "performance",
+            "note": "费电模式，保证费电的同时多一点流畅度",
+            "actions": {
+                "normal": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "4",
+                    "dispFeature": "0",
+                    "cpuFreqMin0": "0 500000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 700000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "4 1"
+                },
+                "active": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "4",
+                    "dispFeature": "1",
+                    "cpuFreqMin0": "0 900000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 1200000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "interaction": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "3",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 900000",
+                    "cpuFreqMax0": "0 1800000",
+                    "cpuFreqMin1": "1 1600000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "pressed": {
+                    "schedBoost": "0",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "3",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 900000",
+                    "cpuFreqMax0": "0 1800000",
+                    "cpuFreqMin1": "1 2300000",
+                    "cpuFreqMax1": "1 2300000",
+                    "ppmPolicy": "6 1"
+                },
+                "heavyLoad": {
+                    "schedBoost": "1",
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "3",
+                    "dispFeature": "2",
+                    "cpuFreqMin0": "0 1800000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 2300000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfLag": {
+                    "uxAffinity": "3",
+                    "cpuFreqMin0": "0 900000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 2300000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                },
+                "sfBoost": {
+                    "topBoost": "0",
+                    "heavyBoost": "0",
+                    "uxAffinity": "3",
+                    "cpuFreqMin0": "0 900000",
+                    "cpuFreqMax0": "0 2000000",
+                    "cpuFreqMin1": "1 2400000",
+                    "cpuFreqMax1": "1 2400000",
+                    "ppmPolicy": "6 1"
+                }
+            }
+        }
+    ]
+}
