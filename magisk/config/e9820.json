@@ -48,7 +48,7 @@
         },
         "dispFeature": {
             "note": "动态屏幕刷新率。path:白名单配置文件路径。rampDownDelayMs:降低屏幕刷新率前延时，降低频繁切换对视觉效果的影响。",
-            "enable": true,
+            "enable": false,
             "path": "/sdcard/yc/uperf/cfg_uperf_display.txt",
             "rampDownDelayMs": 2000
         },
