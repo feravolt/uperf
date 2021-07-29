@@ -473,9 +473,9 @@ busybox_install()
 
     mkdir -p "$dst_path"
     if [ "$(_is_aarch64)" == "true" ]; then
-        cp "$BASEDIR/busybox/busybox-arm64-selinux" "$dst_path/busybox"
+        cp "$BASEDIR/busybox/busybox8" "$dst_path/busybox"
     else
-        cp "$BASEDIR/busybox/busybox-arm-selinux" "$dst_path/busybox"
+        cp "$BASEDIR/busybox/busybox7" "$dst_path/busybox"
     fi
     chmod 0755 "$dst_path/busybox"
 
