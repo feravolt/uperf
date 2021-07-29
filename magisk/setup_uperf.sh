@@ -309,7 +309,6 @@ _get_lahaina_type()
 # $1:cfg_name
 _setup_platform_file()
 {
-    mv -f $USER_PATH/cfg_uperf.json $USER_PATH/cfg_uperf.json.bak 2> /dev/null
     cp $BASEDIR/config/$1.json $USER_PATH/cfg_uperf.json 2> /dev/null
 }
 
@@ -371,15 +370,6 @@ _get_cfgname()
     *)               ret="unsupported" ;;
     esac
     echo "$ret"
-}
-
-uperf_print_banner()
-{
-    echo ""
-    echo "* Uperf https://github.com/yc9559/uperf/"
-    echo "* Author: Matt Yang"
-    echo "* Version: v2 (21.07.25)"
-    echo ""
 }
 
 uperf_print_finish()
@@ -482,7 +472,6 @@ busybox_install()
     rm -rf $BASEDIR/busybox
 }
 
-uperf_print_banner
 uperf_install
 injector_install
 powerhal_stub_install

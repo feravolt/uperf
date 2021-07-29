@@ -15,7 +15,7 @@
         },
         "inputReader": {
             "note": "用户输入读取提供触摸按下/点击/滑动hint。sampleIntervalMinMs:最小用户输入采样间隔。swipeThdPct:滑动大于此相对距离阈值认为是滑动操作。gesturePctX:全面屏手势识别起始坐标X轴阈值。gesturePctY:全面屏手势识别起始坐标X轴阈值。gestureDelayMs:全面屏手势退出延时。holdEnterMs:长时间保持触摸的时长。",
-            "enable": true,
+            "enable": false,
             "sampleIntervalMinMs": 20,
             "swipeThdPct": 0.04,
             "gesturePctX": 0.04,
