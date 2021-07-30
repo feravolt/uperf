@@ -2,7 +2,7 @@
 # https://github.com/yc9559/
 # Author: Matt Yang
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . "$BASEDIR"/pathinfo.sh
 . "$BASEDIR"/libcommon.sh
 

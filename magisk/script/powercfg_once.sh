@@ -4,7 +4,7 @@
 
 # Runonce after boot, to speed up the transition of power modes in powercfg
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . "$BASEDIR"/libcommon.sh
 . "$BASEDIR"/libcgroup.sh
 . "$BASEDIR"/libpowercfg.sh
@@ -135,7 +135,7 @@ unify_cpufreq()
 unify_sched()
 {
     # disable sched global placement boost
-    lock_val "0" "$SCHED"/sched_boost
+    mutate "0" "$SCHED"/sched_boost
     lock_val "1000" "$SCHED"/sched_min_task_util_for_boost
     lock_val "1000" "$SCHED"/sched_min_task_util_for_colocation
     lock_val "0" "$SCHED"/sched_conservative_pl

@@ -1,11 +1,11 @@
-#!/vendor/bin/sh
+#!/system/bin/sh
 # Uperf Setup
 # https://github.com/yc9559/
 # Author: Matt Yang & cjybyjk (cjybyjk@gmail.com)
 # Version: 20201129
 
-BASEDIR=${0%/*}
-USER_PATH="/sdcard/yc/uperf"
+BASEDIR="$(dirname $(readlink -f "$0"))"
+USER_PATH="/data/media/0/yc/uperf"
 
 # $1:error_message
 _abort()
@@ -309,7 +309,7 @@ _get_lahaina_type()
 # $1:cfg_name
 _setup_platform_file()
 {
-    cp "$BASEDIR"/config/"$1".json $USER_PATH/cfg_uperf.json 2> /dev/null
+    cp -f "$BASEDIR"/config/"$1".json $USER_PATH/cfg_uperf.json
 }
 
 # $1:board_name
@@ -385,6 +385,7 @@ uperf_install()
         cfgname="$(_get_cfgname "$target")"
     fi
 
+    mkdir /data/media/0/yc
     mkdir -p $USER_PATH
     if [ "$cfgname" != "unsupported" ] && [ -f "$BASEDIR"/config/"$cfgname".json ]; then
         _setup_platform_file "$cfgname"
@@ -404,7 +405,7 @@ uperf_install()
     # in case of set_perm_recursive is broken
     chmod 0755 "$BASEDIR"/bin/*
 	sleep 1
-    rm -rf "$BASEDIR"/system/uperf
+    rm -Rf "$BASEDIR"/system/uperf
 }
 
 injector_install()
@@ -430,7 +431,7 @@ injector_install()
     # in case of set_perm_recursive is broken
     chmod 0755 "$BASEDIR"/bin/*
 	sleep 1
-    rm -rf "$BASEDIR"/injector
+    rm -Rf "$BASEDIR"/system/injector
 }
 
 powerhal_stub_install()
@@ -458,8 +459,6 @@ busybox_install()
     fi
     chmod 0755 "$dst_path/busybox"
     rm -rf "$BASEDIR"/busybox
-	BB=$BASEDIR/bin/busybox
-    "$BB"/busybox --install -s "$BB"
 }
 
 uperf_install
@@ -467,6 +466,7 @@ injector_install
 powerhal_stub_install
 busybox_install
 uperf_print_finish
+chown 0:0 -R "$BASEDIR"
 chmod 0755 "$BASEDIR"/bin/*
 chmod 0755 "$BASEDIR"/script/*
 chmod 0755 "$BASEDIR"/*

@@ -1,11 +1,11 @@
-#!/vendor/bin/sh
+#!/system/bin/sh
 # Uperf Service Script
 # https://github.com/yc9559/
 # Author: Matt Yang
 # Version: 20200401
 # FeraVolt: No logs, we're good
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 
 wait_until_login()
 {

@@ -4,7 +4,7 @@
 # Author: Matt Yang
 # Version: 20210304
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . "$BASEDIR"/pathinfo.sh
 . "$BASEDIR"/libcommon.sh
 . "$BASEDIR"/libcgroup.sh
@@ -22,7 +22,7 @@ UPERF_NAME="uperf"
 
 uperf_config_path="$USER_PATH/cfg_uperf.json"
 uperf_log_path="$USER_PATH/log_uperf.txt"
-uperf_powermode_node="/sdcard/yc/uperf/cur_powermode"
+uperf_powermode_node="$USER_PATH/cur_powermode"
 
 # $1:mode_name
 uperf_set_powermode()

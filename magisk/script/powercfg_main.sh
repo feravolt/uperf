@@ -2,7 +2,7 @@
 # Uperf https://github.com/yc9559/uperf/
 # Author: Matt Yang
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . "$BASEDIR"/libcommon.sh
 . "$BASEDIR"/libuperf.sh
 

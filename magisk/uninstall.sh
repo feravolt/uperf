@@ -1,5 +1,5 @@
 #!/system/bin/sh
-MODDIR=${0%/*}
+MODDIR="/data/adb/modules/uperf"
 
 rm -Rf /sdcard/yc
 rm -Rf /data/powercfg.sh

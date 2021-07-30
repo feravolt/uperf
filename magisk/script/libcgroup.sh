@@ -4,7 +4,7 @@
 # Author: Matt Yang
 # Version: 20210530
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . "$BASEDIR"/pathinfo.sh
 . "$BASEDIR"/libcommon.sh
 

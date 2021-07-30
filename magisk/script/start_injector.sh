@@ -5,7 +5,7 @@
 # Version: 20210225
 # FeraVolt: Don't allow selinux switches
 
-BASEDIR=${0%/*}
+BASEDIR="/data/adb/modules/uperf"
 . $BASEDIR/pathinfo.sh
 . $BASEDIR/libcommon.sh
 
