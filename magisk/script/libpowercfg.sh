@@ -5,8 +5,8 @@
 # Version: 20210411
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/pathinfo.sh
-. "$BASEDIR"/libcommon.sh
+. $BASEDIR/script/pathinfo.sh
+. $BASEDIR/script/libcommon.sh
 
 ###############################
 # PATHs

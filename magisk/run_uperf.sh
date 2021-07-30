@@ -7,14 +7,6 @@
 BASEDIR="/data/adb/modules/uperf"
 SCRIPT_DIR="$BASEDIR/script"
 
-cp -af "$SCRIPT_DIR"/vtools-powercfg.sh /data/powercfg.sh
-cp -af "$SCRIPT_DIR"/vtools-powercfg.sh /data/powercfg-base.sh
-chmod 755 /data/powercfg.sh
-chmod 755 /data/powercfg-base.sh
-
-# powercfg path provided by magisk module
-echo "sh $SCRIPT_DIR/powercfg_main.sh \"\$1\"" >> /data/powercfg.sh
-
 BB="$BASEDIR/bin/busybox"
 "$BB"/busybox --install -s "$BB"
 "$BB"/sh "$SCRIPT_DIR"/prepare.sh

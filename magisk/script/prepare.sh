@@ -3,8 +3,7 @@
 # Author: Matt Yang
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/pathinfo.sh
-. "$BASEDIR"/libcommon.sh
+. $BASEDIR/script/libcommon.sh
 
 # clear module init log
 clear_log

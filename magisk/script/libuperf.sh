@@ -5,9 +5,9 @@
 # Version: 20210304
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/pathinfo.sh
-. "$BASEDIR"/libcommon.sh
-. "$BASEDIR"/libcgroup.sh
+. $BASEDIR/script/pathinfo.sh
+. $BASEDIR/script/libcommon.sh
+. $BASEDIR/script/libcgroup.sh
 
 ###############################
 # PATHs
@@ -57,7 +57,7 @@ uperf_start()
     cmd settings delete system min_refresh_rate
 
     # start uperf
-    "$MODULE_PATH/$UPERF_REL/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
+    "$UPERF_REL/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
     # waiting for uperf initialization
     sleep 2
     # uperf shouldn't preempt foreground tasks

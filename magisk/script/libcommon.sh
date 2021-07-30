@@ -5,7 +5,7 @@
 # Version: 20210523
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/pathinfo.sh
+. $BASEDIR/script/pathinfo.sh
 
 ###############################
 # Basic tool functions

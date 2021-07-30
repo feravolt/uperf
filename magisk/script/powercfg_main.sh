@@ -3,8 +3,8 @@
 # Author: Matt Yang
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/libcommon.sh
-. "$BASEDIR"/libuperf.sh
+. $BASEDIR/script/libcommon.sh
+. $BASEDIR/script/libuperf.sh
 
 # $1: power_mode
 apply_power_mode()

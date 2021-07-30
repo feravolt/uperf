@@ -395,43 +395,42 @@ uperf_install()
     rm -rf "$BASEDIR"/config
 
     if [ "$(_is_aarch64)" = "true" ]; then
-        mv -f "$BASEDIR"/system/uperf/aarch64/uperf "$BASEDIR"/bin/uperf
+        rm -f "$BASEDIR"/bin/uperf
+        mv -f "$BASEDIR/bin/uperf8" "$BASEDIR/bin/uperf"
     else
-        mv -f "$BASEDIR"/system/arm/uperf "$BASEDIR"/bin/uperf
+        rm -f "$BASEDIR"/bin/uperf8
     fi
 
     _set_perm_recursive "$BASEDIR" 0 0 0755 0755
     _set_perm_recursive "$BASEDIR"/bin 0 0 0755 0755
     # in case of set_perm_recursive is broken
     chmod 0755 "$BASEDIR"/bin/*
-	sleep 1
-    rm -Rf "$BASEDIR"/system/uperf
 }
 
 injector_install()
 {
     echo "- Installing injector"
 
-    local src_path
-    local dst_path
     if [ "$(_is_aarch64)" = "true" ]; then
-        src_path="$BASEDIR/system/injector/aarch64"
-        dst_path="$BASEDIR/system/lib64"
+	    rm -f "$BASEDIR"/bin/sfa_injector
+	    rm -f "$BASEDIR"/bin/libsfanalysis.so
+		mkdir "$BASEDIR"/system/lib64
+	    mv -f "$BASEDIR/bin/sfa_injector8" "$BASEDIR/bin/sfa_injector"
+	    mv -f "$BASEDIR/bin/libsfanalysis.so8" "$BASEDIR/system/lib64/libsfanalysis.so"
     else
-        src_path="$BASEDIR/system/injector/arm"
-        dst_path="$BASEDIR/system/lib"
+	    mkdir "$BASEDIR"/system/lib
+		mv -f "$BASEDIR/bin/libsfanalysis.so" "$BASEDIR/system/lib/libsfanalysis.so"
+		rm -f "$BASEDIR"/bin/sfa_injector8
+	    rm -f "$BASEDIR"/bin/libsfanalysis.so8
     fi
 
-    mkdir -p "$dst_path"
-    mv -f "$src_path"/sfa_injector "$BASEDIR"/bin/sfa_injector
-    mv -f "$src_path"/libsfanalysis.so "$dst_path"
     _set_perm "$BASEDIR"/bin/sfa_injector 0 0 0755 u:object_r:system_file:s0
-    _set_perm "$dst_path"/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
+    _set_perm "$BASEDIR"/system/lib/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
+    _set_perm "$BASEDIR"/system/lib64/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
 
     # in case of set_perm_recursive is broken
     chmod 0755 "$BASEDIR"/bin/*
 	sleep 1
-    rm -Rf "$BASEDIR"/system/injector
 }
 
 powerhal_stub_install()
@@ -444,27 +443,9 @@ powerhal_stub_install()
     _set_perm "$BASEDIR/system/vendor/etc/perf/targetresourceconfigs.xml" 0 0 0755 u:object_r:vendor_configs_file:s0
 }
 
-busybox_install()
-{
-    echo "- Installing private brutal busybox"
-
-    local dst_path
-    dst_path="$BASEDIR/bin/busybox/"
-
-    mkdir -p "$dst_path"
-    if [ "$(_is_aarch64)" = "true" ]; then
-        mv -f "$BASEDIR/busybox/busybox-arm64-selinux" "$dst_path/busybox"
-    else
-        mv -f "$BASEDIR/busybox/busybox-arm-selinux" "$dst_path/busybox"
-    fi
-    chmod 0755 "$dst_path/busybox"
-    rm -rf "$BASEDIR"/busybox
-}
-
 uperf_install
 injector_install
 powerhal_stub_install
-busybox_install
 uperf_print_finish
 chown 0:0 -R "$BASEDIR"
 chmod 0755 "$BASEDIR"/bin/*

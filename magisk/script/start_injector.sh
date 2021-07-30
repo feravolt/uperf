@@ -6,8 +6,8 @@
 # FeraVolt: Don't allow selinux switches
 
 BASEDIR="/data/adb/modules/uperf"
-. $BASEDIR/pathinfo.sh
-. $BASEDIR/libcommon.sh
+. $BASEDIR/script/pathinfo.sh
+. $BASEDIR/script/libcommon.sh
 
 ###############################
 # PATHs
@@ -40,7 +40,7 @@ inj_do_inject()
     magiskpolicy --live "allow surfaceflinger system_data_file file { read write getattr }" >> "$LOG_FILE"
     magiskpolicy --live "allow surfaceflinger system_data_file dir { read write getattr search }" >> "$LOG_FILE"
 
-    "$MODULE_PATH/$INJ_REL/$INJ_NAME" "$lib_path" >> "$LOG_FILE"
+    "$INJ_REL/$INJ_NAME" "$lib_path" >> "$LOG_FILE"
 
     sleep 1
     log "[end] injecting $2 to $1"

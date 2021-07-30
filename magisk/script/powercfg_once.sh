@@ -5,10 +5,10 @@
 # Runonce after boot, to speed up the transition of power modes in powercfg
 
 BASEDIR="/data/adb/modules/uperf"
-. "$BASEDIR"/libcommon.sh
-. "$BASEDIR"/libcgroup.sh
-. "$BASEDIR"/libpowercfg.sh
-. "$BASEDIR"/libuperf.sh
+. $BASEDIR/script/libcommon.sh
+. $BASEDIR/script/libcgroup.sh
+. $BASEDIR/script/libpowercfg.sh
+. $BASEDIR/script/libuperf.sh
 
 unify_cgroup()
 {
