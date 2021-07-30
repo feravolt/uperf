@@ -4,7 +4,7 @@
 # Author: Matt Yang
 # Version: 20210304
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/pathinfo.sh
 . $BASEDIR/libcommon.sh
 . $BASEDIR/libcgroup.sh

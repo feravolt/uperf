@@ -5,7 +5,7 @@
 # Version: 20200401
 # FeraVolt: No logs, we're good
 
-BASEDIR="$(dirname $(readlink -f "$0"))"
+BASEDIR=${0%/*}
 
 wait_until_login()
 {
@@ -24,11 +24,5 @@ wait_until_login()
     rm "$test_file"
 }
 
-crash_recuser()
-{
-    rm -f $BASEDIR/flags/.need_recuser
-}
-
-(crash_recuser &)
 wait_until_login
 sh $BASEDIR/run_uperf.sh

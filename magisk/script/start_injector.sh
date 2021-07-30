@@ -5,7 +5,7 @@
 # Version: 20210225
 # FeraVolt: Don't allow selinux switches
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/pathinfo.sh
 . $BASEDIR/libcommon.sh
 

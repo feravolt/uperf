@@ -4,7 +4,7 @@
 # Author: Matt Yang
 # Version: 20210523
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/pathinfo.sh
 
 ###############################

@@ -4,7 +4,7 @@
 
 # Runonce after boot, to speed up the transition of power modes in powercfg
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/libcommon.sh
 . $BASEDIR/libcgroup.sh
 . $BASEDIR/libpowercfg.sh

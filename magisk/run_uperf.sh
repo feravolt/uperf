@@ -4,12 +4,9 @@
 # Author: Matt Yang
 # Version: 20200401
 
-BASEDIR="$(dirname $(readlink -f "$0"))"
+BASEDIR=${0%/*}
 SCRIPT_DIR="$BASEDIR/script"
 
-# support vtools
-cp -af $SCRIPT_DIR/vtools-powercfg.sh /data/powercfg.sh
-cp -af $SCRIPT_DIR/vtools-powercfg.sh /data/powercfg-base.sh
 chmod 755 /data/powercfg.sh
 chmod 755 /data/powercfg-base.sh
 

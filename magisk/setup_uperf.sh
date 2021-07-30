@@ -4,7 +4,7 @@
 # Author: Matt Yang & cjybyjk (cjybyjk@gmail.com)
 # Version: 20201129
 
-BASEDIR="$(dirname $(readlink -f "$0"))"
+BASEDIR=${0%/*}
 USER_PATH="/sdcard/yc/uperf"
 
 # $1:error_message
@@ -312,13 +312,6 @@ _setup_platform_file()
     cp $BASEDIR/config/$1.json $USER_PATH/cfg_uperf.json 2> /dev/null
 }
 
-_place_user_config()
-{
-    if [ ! -e "$USER_PATH/cfg_uperf_display.txt" ]; then
-        cp $BASEDIR/config/cfg_uperf_display.txt $USER_PATH/cfg_uperf_display.txt 2> /dev/null
-    fi
-}
-
 # $1:board_name
 _get_cfgname()
 {
@@ -379,7 +372,7 @@ uperf_print_finish()
 
 uperf_install()
 {
-    echo "- Installing uperf"
+    echo "- Installing uperf (FDE.AI edition)"
     echo "- ro.board.platform=$(getprop ro.board.platform)"
     echo "- ro.product.board=$(getprop ro.product.board)"
 
@@ -398,20 +391,18 @@ uperf_install()
     else
         _abort "! [$target] not supported."
     fi
-    _place_user_config
     rm -rf $BASEDIR/config
 
     if [ "$(_is_aarch64)" == "true" ]; then
-        cp "$BASEDIR/uperf/aarch64/uperf" "$BASEDIR/bin"
+        mv -f $BASEDIR/uperf/aarch64/uperf $BASEDIR/bin/uperf
     else
-        cp "$BASEDIR/uperf/arm/uperf" "$BASEDIR/bin"
+        mv -f $BASEDIR/uperf/arm/uperf $BASEDIR/bin/uperf
     fi
 
-    _set_perm_recursive $BASEDIR 0 0 0755 0644
+    _set_perm_recursive $BASEDIR 0 0 0755 0755
     _set_perm_recursive $BASEDIR/bin 0 0 0755 0755
     # in case of set_perm_recursive is broken
     chmod 0755 $BASEDIR/bin/*
-
     rm -rf $BASEDIR/uperf
 }
 
@@ -430,21 +421,19 @@ injector_install()
     fi
 
     mkdir -p "$dst_path"
-    cp "$src_path/sfa_injector" "$BASEDIR/bin/"
-    cp "$src_path/libsfanalysis.so" "$dst_path"
+    mv -f $src_path/sfa_injector $BASEDIR/bin/sfa_injector
+    mv -f $src_path/libsfanalysis.so $dst_path
     _set_perm "$BASEDIR/bin/sfa_injector" 0 0 0755 u:object_r:system_file:s0
     _set_perm "$dst_path/libsfanalysis.so" 0 0 0644 u:object_r:system_lib_file:s0
 
     # in case of set_perm_recursive is broken
     chmod 0755 $BASEDIR/bin/*
-
     rm -rf $BASEDIR/injector
 }
 
 powerhal_stub_install()
 {
     echo "- Installing perfhal stub"
-
     _set_perm "$BASEDIR/system/vendor/etc/powerhint.json" 0 0 0755 u:object_r:vendor_configs_file:s0
     _set_perm "$BASEDIR/system/vendor/etc/powerscntbl.cfg" 0 0 0755 u:object_r:vendor_configs_file:s0
     _set_perm "$BASEDIR/system/vendor/etc/powerscntbl.xml" 0 0 0755 u:object_r:vendor_configs_file:s0
@@ -461,12 +450,11 @@ busybox_install()
 
     mkdir -p "$dst_path"
     if [ "$(_is_aarch64)" == "true" ]; then
-        cp "$BASEDIR/busybox/busybox8" "$dst_path/busybox"
+        mv -f "$BASEDIR/busybox/busybox-arm64-selinux" "$dst_path/busybox"
     else
-        cp "$BASEDIR/busybox/busybox7" "$dst_path/busybox"
+        mv -f "$BASEDIR/busybox/busybox-arm-selinux" "$dst_path/busybox"
     fi
     chmod 0755 "$dst_path/busybox"
-
     rm -rf $BASEDIR/busybox
 }
 
@@ -475,4 +463,7 @@ injector_install
 powerhal_stub_install
 busybox_install
 uperf_print_finish
+chmod 0755 $BASEDIR/bin/*
+chmod 0755 $BASEDIR/script/*
+chmod 0755 $BASEDIR/*
 exit 0

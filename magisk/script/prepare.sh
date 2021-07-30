@@ -2,7 +2,7 @@
 # https://github.com/yc9559/
 # Author: Matt Yang
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/pathinfo.sh
 . $BASEDIR/libcommon.sh
 

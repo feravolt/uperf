@@ -2,7 +2,7 @@
 # Uperf https://github.com/yc9559/uperf/
 # Author: Matt Yang
 
-BASEDIR="$(dirname "$0")"
+BASEDIR=${0%/*}
 . $BASEDIR/libcommon.sh
 . $BASEDIR/libuperf.sh
 
