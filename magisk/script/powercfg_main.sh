@@ -3,8 +3,8 @@
 # Author: Matt Yang
 
 BASEDIR=${0%/*}
-. $BASEDIR/libcommon.sh
-. $BASEDIR/libuperf.sh
+. "$BASEDIR"/libcommon.sh
+. "$BASEDIR"/libuperf.sh
 
 # $1: power_mode
 apply_power_mode()

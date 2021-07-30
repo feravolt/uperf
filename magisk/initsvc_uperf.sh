@@ -25,4 +25,4 @@ wait_until_login()
 }
 
 wait_until_login
-sh $BASEDIR/run_uperf.sh
+sh "$BASEDIR"/run_uperf.sh

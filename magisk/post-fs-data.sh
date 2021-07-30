@@ -22,17 +22,17 @@ remove_unnecessary_overlay()
         [ ! -f "/$f" ] && rm "$MODDIR/system/$f"
     done
 
-    rm -f $MODDIR/flags/enable_perfhal_stub
+    rm -f "$MODDIR"/flags/enable_perfhal_stub
     for f in $perfcfgs; do
-        [ -f "$MODDIR/system/$f" ] && true > $MODDIR/flags/enable_perfhal_stub
+        [ -f "$MODDIR/system/$f" ] && true > "$MODDIR"/flags/enable_perfhal_stub
     done
 }
 
 if [ -f "$MODDIR/flags/.need_recuser" ]; then
-    rm -f $MODDIR/flags/.need_recuser
-    true > $MODDIR/disable
+    rm -f "$MODDIR"/flags/.need_recuser
+    true > "$MODDIR"/disable
 else
-    true > $MODDIR/flags/.need_recuser
+    true > "$MODDIR"/flags/.need_recuser
 fi
 
 remove_unnecessary_overlay

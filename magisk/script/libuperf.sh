@@ -5,9 +5,9 @@
 # Version: 20210304
 
 BASEDIR=${0%/*}
-. $BASEDIR/pathinfo.sh
-. $BASEDIR/libcommon.sh
-. $BASEDIR/libcgroup.sh
+. "$BASEDIR"/pathinfo.sh
+. "$BASEDIR"/libcommon.sh
+. "$BASEDIR"/libcgroup.sh
 
 ###############################
 # PATHs

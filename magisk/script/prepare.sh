@@ -3,8 +3,8 @@
 # Author: Matt Yang
 
 BASEDIR=${0%/*}
-. $BASEDIR/pathinfo.sh
-. $BASEDIR/libcommon.sh
+. "$BASEDIR"/pathinfo.sh
+. "$BASEDIR"/libcommon.sh
 
 # clear module init log
 clear_log

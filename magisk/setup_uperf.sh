@@ -19,20 +19,20 @@ _abort()
 _set_perm()
 {
     local con
-    chown $2:$3 $1
-    chmod $4 $1
+    chown "$2":"$3" "$1"
+    chmod "$4" "$1"
     con=$5
-    [ -z $con ] && con=u:object_r:system_file:s0
-    chcon $con $1
+    [ -z "$con" ] && con=u:object_r:system_file:s0
+    chcon $con "$1"
 }
 
 # $1:directory $2:owner $3:group $4:dir_permission $5:file_permission $6:secontext
 _set_perm_recursive() {
-    find $1 -type d 2>/dev/null | while read dir; do
-        _set_perm $dir $2 $3 $4 $6
+    find "$1" -type d 2>/dev/null | while read dir; do
+        _set_perm "$dir" "$2" "$3" "$4" "$6"
     done
-    find $1 -type f -o -type l 2>/dev/null | while read file; do
-        _set_perm $file $2 $3 $5 $6
+    find "$1" -type f -o -type l 2>/dev/null | while read file; do
+        _set_perm "$file" "$2" "$3" "$5" "$6"
     done
 }
 
@@ -43,7 +43,7 @@ _get_nr_core()
 
 _is_aarch64()
 {
-    if [ "$(getprop ro.product.cpu.abi)" == "arm64-v8a" ]; then
+    if [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]; then
         echo "true"
     else
         echo "false"
@@ -70,7 +70,7 @@ _get_maxfreq()
         return
     fi
 
-    for f in $(cat $fpath); do
+    for f in $(cat "$fpath"); do
         [ "$f" -gt "$maxfreq" ] && maxfreq="$f"
     done
     echo "$maxfreq"
@@ -123,7 +123,7 @@ _get_msm8952_type()
         echo "msm8952"
     ;;
     *)
-        if [ "$(_get_nr_core)" == "8" ]; then
+        if [ "$(_get_nr_core)" = "8" ]; then
             echo "sdm652"
         else
             echo "sdm650"
@@ -134,7 +134,7 @@ _get_msm8952_type()
 
 _get_sdm636_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm636_eas"
     else
         echo "sdm636_hmp"
@@ -147,7 +147,7 @@ _get_sdm660_type()
     b_max="$(_get_maxfreq 4)"
     # sdm660 & sdm636 may share the same platform name
     if [ "$b_max" -gt 2000000 ]; then
-        if [ "$(_is_eas)" == "true" ]; then
+        if [ "$(_is_eas)" = "true" ]; then
             echo "sdm660_eas"
         else
             echo "sdm660_hmp"
@@ -159,7 +159,7 @@ _get_sdm660_type()
 
 _get_sdm652_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm652_eas"
     else
         echo "sdm652_hmp"
@@ -168,7 +168,7 @@ _get_sdm652_type()
 
 _get_sdm650_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm650_eas"
     else
         echo "sdm650_hmp"
@@ -177,7 +177,7 @@ _get_sdm650_type()
 
 _get_sdm626_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm626_eas"
     else
         echo "sdm626_hmp"
@@ -190,7 +190,7 @@ _get_sdm625_type()
     b_max="$(_get_maxfreq 4)"
     # sdm625 & sdm626 may share the same platform name
     if [ "$b_max" -lt 2100000 ]; then
-        if [ "$(_is_eas)" == "true" ]; then
+        if [ "$(_is_eas)" = "true" ]; then
             echo "sdm625_eas"
         else
             echo "sdm625_hmp"
@@ -202,7 +202,7 @@ _get_sdm625_type()
 
 _get_sdm835_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm835_eas"
     else
         echo "sdm835_hmp"
@@ -211,7 +211,7 @@ _get_sdm835_type()
 
 _get_sdm82x_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "sdm82x_eas"
         return
     fi
@@ -246,7 +246,7 @@ _get_sdm82x_type()
 
 _get_e8890_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "e8890_eas"
     else
         echo "e8890_hmp"
@@ -255,7 +255,7 @@ _get_e8890_type()
 
 _get_e8895_type()
 {
-    if [ "$(_is_eas)" == "true" ]; then
+    if [ "$(_is_eas)" = "true" ]; then
         echo "e8895_eas"
     else
         echo "e8895_hmp"
@@ -309,7 +309,7 @@ _get_lahaina_type()
 # $1:cfg_name
 _setup_platform_file()
 {
-    cp $BASEDIR/config/$1.json $USER_PATH/cfg_uperf.json 2> /dev/null
+    cp "$BASEDIR"/config/"$1".json $USER_PATH/cfg_uperf.json 2> /dev/null
 }
 
 # $1:board_name
@@ -379,31 +379,32 @@ uperf_install()
     local target
     local cfgname
     target="$(getprop ro.board.platform)"
-    cfgname="$(_get_cfgname $target)"
-    if [ "$cfgname" == "unsupported" ]; then
+    cfgname="$(_get_cfgname "$target")"
+    if [ "$cfgname" = "unsupported" ]; then
         target="$(getprop ro.product.board)"
-        cfgname="$(_get_cfgname $target)"
+        cfgname="$(_get_cfgname "$target")"
     fi
 
     mkdir -p $USER_PATH
-    if [ "$cfgname" != "unsupported" ] && [ -f $BASEDIR/config/$cfgname.json ]; then
+    if [ "$cfgname" != "unsupported" ] && [ -f "$BASEDIR"/config/"$cfgname".json ]; then
         _setup_platform_file "$cfgname"
     else
         _abort "! [$target] not supported."
     fi
-    rm -rf $BASEDIR/config
+    rm -rf "$BASEDIR"/config
 
-    if [ "$(_is_aarch64)" == "true" ]; then
-        mv -f $BASEDIR/uperf/aarch64/uperf $BASEDIR/bin/uperf
+    if [ "$(_is_aarch64)" = "true" ]; then
+        mv -f "$BASEDIR"/system/uperf/aarch64/uperf "$BASEDIR"/bin/uperf
     else
-        mv -f $BASEDIR/uperf/arm/uperf $BASEDIR/bin/uperf
+        mv -f "$BASEDIR"/system/arm/uperf "$BASEDIR"/bin/uperf
     fi
 
-    _set_perm_recursive $BASEDIR 0 0 0755 0755
-    _set_perm_recursive $BASEDIR/bin 0 0 0755 0755
+    _set_perm_recursive "$BASEDIR" 0 0 0755 0755
+    _set_perm_recursive "$BASEDIR"/bin 0 0 0755 0755
     # in case of set_perm_recursive is broken
-    chmod 0755 $BASEDIR/bin/*
-    rm -rf $BASEDIR/uperf
+    chmod 0755 "$BASEDIR"/bin/*
+	sleep 1
+    rm -rf "$BASEDIR"/system/uperf
 }
 
 injector_install()
@@ -412,23 +413,24 @@ injector_install()
 
     local src_path
     local dst_path
-    if [ "$(_is_aarch64)" == "true" ]; then
-        src_path="$BASEDIR/injector/aarch64"
+    if [ "$(_is_aarch64)" = "true" ]; then
+        src_path="$BASEDIR/system/injector/aarch64"
         dst_path="$BASEDIR/system/lib64"
     else
-        src_path="$BASEDIR/injector/arm"
+        src_path="$BASEDIR/system/injector/arm"
         dst_path="$BASEDIR/system/lib"
     fi
 
     mkdir -p "$dst_path"
-    mv -f $src_path/sfa_injector $BASEDIR/bin/sfa_injector
-    mv -f $src_path/libsfanalysis.so $dst_path
-    _set_perm "$BASEDIR/bin/sfa_injector" 0 0 0755 u:object_r:system_file:s0
-    _set_perm "$dst_path/libsfanalysis.so" 0 0 0644 u:object_r:system_lib_file:s0
+    mv -f "$src_path"/sfa_injector "$BASEDIR"/bin/sfa_injector
+    mv -f "$src_path"/libsfanalysis.so "$dst_path"
+    _set_perm "$BASEDIR"/bin/sfa_injector 0 0 0755 u:object_r:system_file:s0
+    _set_perm "$dst_path"/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
 
     # in case of set_perm_recursive is broken
-    chmod 0755 $BASEDIR/bin/*
-    rm -rf $BASEDIR/injector
+    chmod 0755 "$BASEDIR"/bin/*
+	sleep 1
+    rm -rf "$BASEDIR"/injector
 }
 
 powerhal_stub_install()
@@ -449,13 +451,15 @@ busybox_install()
     dst_path="$BASEDIR/bin/busybox/"
 
     mkdir -p "$dst_path"
-    if [ "$(_is_aarch64)" == "true" ]; then
+    if [ "$(_is_aarch64)" = "true" ]; then
         mv -f "$BASEDIR/busybox/busybox-arm64-selinux" "$dst_path/busybox"
     else
         mv -f "$BASEDIR/busybox/busybox-arm-selinux" "$dst_path/busybox"
     fi
     chmod 0755 "$dst_path/busybox"
-    rm -rf $BASEDIR/busybox
+    rm -rf "$BASEDIR"/busybox
+	BB=$BASEDIR/bin/busybox
+    "$BB"/busybox --install -s "$BB"
 }
 
 uperf_install
@@ -463,7 +467,7 @@ injector_install
 powerhal_stub_install
 busybox_install
 uperf_print_finish
-chmod 0755 $BASEDIR/bin/*
-chmod 0755 $BASEDIR/script/*
-chmod 0755 $BASEDIR/*
+chmod 0755 "$BASEDIR"/bin/*
+chmod 0755 "$BASEDIR"/script/*
+chmod 0755 "$BASEDIR"/*
 exit 0

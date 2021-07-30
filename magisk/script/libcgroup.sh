@@ -5,8 +5,8 @@
 # Version: 20210530
 
 BASEDIR=${0%/*}
-. $BASEDIR/pathinfo.sh
-. $BASEDIR/libcommon.sh
+. "$BASEDIR"/pathinfo.sh
+. "$BASEDIR"/libcommon.sh
 
 # process scan cache
 ps_ret=""
@@ -28,7 +28,7 @@ change_task_cgroup()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
             echo "$temp_tid" > "/dev/$3/$2/tasks"
         done
     done
@@ -39,8 +39,8 @@ change_proc_cgroup()
 {
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
-        comm="$(cat /proc/$temp_pid/comm)"
-        echo $temp_pid > "/dev/$3/$2/cgroup.procs"
+        comm="$(cat /proc/"$temp_pid"/comm)"
+        echo "$temp_pid" > "/dev/$3/$2/cgroup.procs"
     done
 }
 
@@ -50,8 +50,8 @@ change_thread_cgroup()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            if [ "$(echo $comm | grep -i -E "$2")" != "" ]; then
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            if [ "$(echo "$comm" | grep -i -E "$2")" != "" ]; then
                 echo "$temp_tid" > "/dev/$4/$3/tasks"
             fi
         done
@@ -63,8 +63,8 @@ change_main_thread_cgroup()
 {
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
-        comm="$(cat /proc/$temp_pid/comm)"
-        echo $temp_pid > "/dev/$3/$2/tasks"
+        comm="$(cat /proc/"$temp_pid"/comm)"
+        echo "$temp_pid" > "/dev/$3/$2/tasks"
     done
 }
 
@@ -74,8 +74,8 @@ change_task_affinity()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            taskset -p "$2" "$temp_tid" >> $LOG_FILE
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            taskset -p "$2" "$temp_tid" >> "$LOG_FILE"
         done
     done
 }
@@ -86,9 +86,9 @@ change_thread_affinity()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            if [ "$(echo $comm | grep -i -E "$2")" != "" ]; then
-                taskset -p "$3" "$temp_tid" >> $LOG_FILE
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            if [ "$(echo "$comm" | grep -i -E "$2")" != "" ]; then
+                taskset -p "$3" "$temp_tid" >> "$LOG_FILE"
             fi
         done
     done
@@ -112,8 +112,8 @@ change_thread_nice()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            if [ "$(echo $comm | grep -i -E "$2")" != "" ]; then
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            if [ "$(echo "$comm" | grep -i -E "$2")" != "" ]; then
                 renice -n +40 -p "$temp_tid"
                 renice -n -19 -p "$temp_tid"
                 renice -n "$3" -p "$temp_tid"
@@ -127,8 +127,8 @@ change_task_rt()
 {
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            chrt -f -p "$2" "$temp_tid" >> $LOG_FILE
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            chrt -f -p "$2" "$temp_tid" >> "$LOG_FILE"
         done
     done
 }
@@ -139,9 +139,9 @@ change_thread_rt()
     local comm
     for temp_pid in $(echo "$ps_ret" | grep -i -E "$1" | awk '{print $1}'); do
         for temp_tid in $(ls "/proc/$temp_pid/task/"); do
-            comm="$(cat /proc/$temp_pid/task/$temp_tid/comm)"
-            if [ "$(echo $comm | grep -i -E "$2")" != "" ]; then
-                chrt -f -p "$3" "$temp_tid" >> $LOG_FILE
+            comm="$(cat /proc/"$temp_pid"/task/"$temp_tid"/comm)"
+            if [ "$(echo "$comm" | grep -i -E "$2")" != "" ]; then
+                chrt -f -p "$3" "$temp_tid" >> "$LOG_FILE"
             fi
         done
     done

@@ -3,4 +3,4 @@
 MODDIR=${0%/*}
 SCRIPT_DIR="$MODDIR/script"
 
-sh $MODDIR/initsvc_uperf.sh
+sh "$MODDIR"/initsvc_uperf.sh

@@ -26,7 +26,7 @@ inj_do_inject()
     log "[begin] injecting $2 to $1"
 
     local lib_path
-    if [ "$(is_aarch64)" == "true" ]; then
+    if [ "$(is_aarch64)" = "true" ]; then
         lib_path="/system/lib64/$2"
     else
         lib_path="/system/lib/$2"

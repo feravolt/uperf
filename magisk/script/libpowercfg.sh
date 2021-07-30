@@ -5,8 +5,8 @@
 # Version: 20210411
 
 BASEDIR=${0%/*}
-. $BASEDIR/pathinfo.sh
-. $BASEDIR/libcommon.sh
+. "$BASEDIR"/pathinfo.sh
+. "$BASEDIR"/libcommon.sh
 
 ###############################
 # PATHs
@@ -56,7 +56,7 @@ get_maxfreq()
         return
     fi
 
-    for f in $(cat $fpath); do
+    for f in $(cat "$fpath"); do
         [ "$f" -gt "$maxfreq" ] && maxfreq="$f"
     done
     echo "$maxfreq"
@@ -71,7 +71,7 @@ set_cpufreq_min()
     for kv in $1; do
         key=${kv%:*}
         val=${kv#*:}
-        mutate "$val" $CPU/cpu$key/cpufreq/scaling_min_freq
+        mutate "$val" $CPU/cpu"$key"/cpufreq/scaling_min_freq
     done
 }
 
@@ -89,7 +89,7 @@ set_cpufreq_dyn_max()
     for kv in $1; do
         key=${kv%:*}
         val=${kv#*:}
-        mutate "$val" $CPU/cpu$key/cpufreq/scaling_max_freq
+        mutate "$val" $CPU/cpu"$key"/cpufreq/scaling_max_freq
     done
 }
 
@@ -101,9 +101,9 @@ set_governor_param()
     for kv in $2; do
         key=${kv%:*}
         val=${kv#*:}
-        mutate "$val" $CPU/cpu$key/cpufreq/$1
+        mutate "$val" $CPU/cpu"$key"/cpufreq/"$1"
         # sdm625 hmp
-        mutate "$val" $CPU/cpufreq/$1
+        mutate "$val" $CPU/cpufreq/"$1"
     done
 }
 
@@ -115,7 +115,7 @@ set_corectl_param()
     for kv in $2; do
         key=${kv%:*}
         val=${kv#*:}
-        mutate "$val" $CPU/cpu$key/core_ctl/$1
+        mutate "$val" $CPU/cpu"$key"/core_ctl/"$1"
     done
 }
 

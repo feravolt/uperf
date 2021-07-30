@@ -5,10 +5,10 @@
 # Runonce after boot, to speed up the transition of power modes in powercfg
 
 BASEDIR=${0%/*}
-. $BASEDIR/libcommon.sh
-. $BASEDIR/libcgroup.sh
-. $BASEDIR/libpowercfg.sh
-. $BASEDIR/libuperf.sh
+. "$BASEDIR"/libcommon.sh
+. "$BASEDIR"/libcgroup.sh
+. "$BASEDIR"/libpowercfg.sh
+. "$BASEDIR"/libuperf.sh
 
 unify_cgroup()
 {
@@ -23,7 +23,7 @@ unify_cgroup()
     done
     for cg in stune cpuctl; do
         for p in $(cat /dev/$cg/top-app/tasks); do
-            echo $p > /dev/$cg/foreground/tasks
+            echo "$p" > /dev/$cg/foreground/tasks
         done
     done
 
@@ -109,7 +109,7 @@ unify_cpufreq()
 
     # clear cpu load scale factor
     for i in 0 1 2 3 4 5 6 7 8 9; do
-        lock_val "0" $CPU/cpu$i/sched_load_boost
+        lock_val "0" "$CPU"/cpu$i/sched_load_boost
     done
 
     # unify governor, use schedutil if kernel has it
@@ -135,21 +135,21 @@ unify_cpufreq()
 unify_sched()
 {
     # disable sched global placement boost
-    lock_val "0" $SCHED/sched_boost
-    lock_val "1000" $SCHED/sched_min_task_util_for_boost
-    lock_val "1000" $SCHED/sched_min_task_util_for_colocation
-    lock_val "0" $SCHED/sched_conservative_pl
-    lock_val "0" $SCHED/sched_force_lb_enable
-    lock_val "0" $SCHED/sched_boost_top_app
+    lock_val "0" "$SCHED"/sched_boost
+    lock_val "1000" "$SCHED"/sched_min_task_util_for_boost
+    lock_val "1000" "$SCHED"/sched_min_task_util_for_colocation
+    lock_val "0" "$SCHED"/sched_conservative_pl
+    lock_val "0" "$SCHED"/sched_force_lb_enable
+    lock_val "0" "$SCHED"/sched_boost_top_app
 
     # unify WALT HMP sched
-    lock_val "5" $SCHED/sched_ravg_hist_size
-    lock_val "2" $SCHED/sched_window_stats_policy
-    lock_val "90" $SCHED/sched_spill_load
-    lock_val "1" $SCHED/sched_restrict_cluster_spill
-    lock_val "1" $SCHED/sched_prefer_sync_wakee_to_waker
-    lock_val "200000" $SCHED/sched_freq_inc_notify
-    lock_val "400000" $SCHED/sched_freq_dec_notify
+    lock_val "5" "$SCHED"/sched_ravg_hist_size
+    lock_val "2" "$SCHED"/sched_window_stats_policy
+    lock_val "90" "$SCHED"/sched_spill_load
+    lock_val "1" "$SCHED"/sched_restrict_cluster_spill
+    lock_val "1" "$SCHED"/sched_prefer_sync_wakee_to_waker
+    lock_val "200000" "$SCHED"/sched_freq_inc_notify
+    lock_val "400000" "$SCHED"/sched_freq_dec_notify
 
     # place a little heavier processes on big cluster, due to Cortex-A55 poor efficiency
     # The same Binder, A55@1.0g took 7.3ms，A76@1.0g took 3.0ms, in this case, A76's efficiency is 2.4x of A55's.
@@ -159,25 +159,25 @@ unify_sched()
 
     # 10ms=10000000, prefer to use prev cpu, decrease jitter from 0.5ms to 0.3ms with lpm settings
     # 0.2ms=200000, prevent system_server binders pinned on perf cluster
-    lock_val "200000" $SCHED/sched_migration_cost_ns
+    lock_val "200000" "$SCHED"/sched_migration_cost_ns
 }
 
 unify_lpm()
 {
     # enter C-state level 3 took ~500us
     # Qualcomm C-state ctrl
-    lock_val "0" $LPM/sleep_disabled
-    lock_val "0" $LPM/lpm_ipi_prediction
+    lock_val "0" "$LPM"/sleep_disabled
+    lock_val "0" "$LPM"/lpm_ipi_prediction
     if [ -f "$LPM/bias_hyst" ]; then
-        lock_val "5" $LPM/bias_hyst
-        lock_val "0" $LPM/lpm_prediction
+        lock_val "5" "$LPM"/bias_hyst
+        lock_val "0" "$LPM"/lpm_prediction
     elif [ -f "$SCHED/sched_busy_hyst_ns" ]; then
-        lock_val "127" $SCHED/sched_busy_hysteresis_enable_cpus # seem not working well on cpu7
-        lock_val "0" $SCHED/sched_coloc_busy_hysteresis_enable_cpus
-        lock_val "5000000" $SCHED/sched_busy_hyst_ns
-        lock_val "0" $LPM/lpm_prediction
+        lock_val "127" "$SCHED"/sched_busy_hysteresis_enable_cpus # seem not working well on cpu7
+        lock_val "0" "$SCHED"/sched_coloc_busy_hysteresis_enable_cpus
+        lock_val "5000000" "$SCHED"/sched_busy_hyst_ns
+        lock_val "0" "$LPM"/lpm_prediction
     else
-        lock_val "1" $LPM/lpm_prediction
+        lock_val "1" "$LPM"/lpm_prediction
     fi
 }
 
@@ -185,7 +185,7 @@ disable_hotplug()
 {
     # Exynos hotplug
     mutate "0" /sys/power/cpuhotplug/enabled
-    mutate "0" $CPU/cpuhotplug/enabled
+    mutate "0" "$CPU"/cpuhotplug/enabled
 
     # turn off msm_thermal
     lock_val "0" /sys/module/msm_thermal/core_control/enabled
@@ -200,7 +200,7 @@ disable_hotplug()
 
     # bring all cores online
     for i in 0 1 2 3 4 5 6 7 8 9; do
-        mutate "1" $CPU/cpu$i/online
+        mutate "1" "$CPU"/cpu$i/online
     done
 }
 

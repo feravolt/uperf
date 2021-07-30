@@ -5,7 +5,7 @@
 # Version: 20210523
 
 BASEDIR=${0%/*}
-. $BASEDIR/pathinfo.sh
+. "$BASEDIR"/pathinfo.sh
 
 ###############################
 # Basic tool functions
@@ -46,7 +46,7 @@ lock()
 has_val_in_list()
 {
     for item in $2; do
-        if [ "$1" == "$item" ]; then
+        if [ "$1" = "$item" ]; then
             echo "true"
             return
         fi
@@ -135,7 +135,7 @@ get_nr_core()
 
 is_aarch64()
 {
-    if [ "$(getprop ro.product.cpu.abi)" == "arm64-v8a" ]; then
+    if [ "$(getprop ro.product.cpu.abi)" = "arm64-v8a" ]; then
         echo "true"
     else
         echo "false"
@@ -153,7 +153,7 @@ is_mtk()
 
 is_magisk()
 {
-    if [ "$(echo $BASEDIR | grep "^\/data\/adb\/modules")" != "" ]; then
+    if [ "$(echo "$BASEDIR" | grep "^\/data\/adb\/modules")" != "" ]; then
         echo "true"
     else
         echo "false"
