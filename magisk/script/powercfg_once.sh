@@ -188,8 +188,8 @@ disable_hotplug()
     mutate "0" "$CPU"/cpuhotplug/enabled
 
     # turn off msm_thermal
-    lock_val "0" /sys/module/msm_thermal/core_control/enabled
-    lock_val "N" /sys/module/msm_thermal/parameters/enabled
+    mutate "0" /sys/module/msm_thermal/core_control/enabled
+    mutate "N" /sys/module/msm_thermal/parameters/enabled
 
     # 3rd
     lock_val "0" /sys/kernel/intelli_plug/intelli_plug_active
@@ -207,9 +207,9 @@ disable_hotplug()
 disable_kernel_boost()
 {
     # Qualcomm
-    lock_val "0" "/sys/devices/system/cpu/cpu_boost/*"
-    lock_val "0" "/sys/devices/system/cpu/cpu_boost/parameters/*"
-    lock_val "0" "/sys/module/cpu_boost/parameters/*"
+    mutate "0" "/sys/devices/system/cpu/cpu_boost/*"
+    mutate "0" "/sys/devices/system/cpu/cpu_boost/parameters/*"
+    mutate "0" "/sys/module/cpu_boost/parameters/*"
     lock_val "0" "/sys/module/msm_performance/parameters/*"
 
     # MediaTek
@@ -253,8 +253,8 @@ disable_kernel_boost()
     lock_val "0" "/sys/power/pnpmgr/*"
 
     # 3rd
-    lock_val "0" "/sys/kernel/cpu_input_boost/*"
-    lock_val "0" "/sys/module/cpu_input_boost/parameters/*"
+    mutate "0" "/sys/kernel/cpu_input_boost/*"
+    mutate "0" "/sys/module/cpu_input_boost/parameters/*"
     lock_val "0" "/sys/module/dsboost/parameters/*"
     lock_val "0" "/sys/module/devfreq_boost/parameters/*"
 }
