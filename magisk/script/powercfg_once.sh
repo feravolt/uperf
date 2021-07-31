@@ -143,7 +143,7 @@ unify_sched()
     lock_val "0" "$SCHED"/sched_boost_top_app
 
     # unify WALT HMP sched
-    lock_val "5" "$SCHED"/sched_ravg_hist_size
+    mutate "5" "$SCHED"/sched_ravg_hist_size
     lock_val "2" "$SCHED"/sched_window_stats_policy
     lock_val "90" "$SCHED"/sched_spill_load
     lock_val "1" "$SCHED"/sched_restrict_cluster_spill

@@ -13,7 +13,6 @@ BASEDIR="/data/adb/modules/uperf"
 # PATHs
 ###############################
 
-UPERF_REL="$BIN_DIR"
 UPERF_NAME="uperf"
 
 ###############################
@@ -57,7 +56,7 @@ uperf_start()
     cmd settings delete system min_refresh_rate
 
     # start uperf
-    "$UPERF_REL/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
+    "$BIN_DIR/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
     # waiting for uperf initialization
     sleep 2
     # uperf shouldn't preempt foreground tasks

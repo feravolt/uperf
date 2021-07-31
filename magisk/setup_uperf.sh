@@ -5,7 +5,7 @@
 # Version: 20201129
 
 BASEDIR="$(dirname $(readlink -f "$0"))"
-USER_PATH="/data/media/0/yc/uperf"
+USER_PATH="/sdcard/yc/uperf"
 
 # $1:error_message
 _abort()

@@ -8,7 +8,9 @@ BASEDIR="/data/adb/modules/uperf"
 SCRIPT_DIR="$BASEDIR/script"
 
 BB="$BASEDIR/bin/busybox"
-"$BB"/busybox --install -s "$BB"
+if [ ! -f "$BB/sh" ]; then
+ "$BB"/busybox --install -s "$BB"
+fi
 "$BB"/sh "$SCRIPT_DIR"/prepare.sh
 "$BB"/sh "$SCRIPT_DIR"/powercfg_once.sh
 "$BB"/sh "$SCRIPT_DIR"/start_injector.sh

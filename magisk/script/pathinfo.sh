@@ -5,7 +5,7 @@
 # Author: Matt Yang
 
 MODULE_PATH="/data/adb/modules/uperf"
-USER_PATH="/data/media/0/yc/uperf"
+USER_PATH="/sdcard/yc/uperf"
 PANEL_FILE="$USER_PATH/panel_uperf.txt"
 LOG_FILE="$USER_PATH/log_uperf_initsvc.log"
 FLAGS="$MODULE_PATH/flags"
