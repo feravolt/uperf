@@ -309,6 +309,7 @@ _get_lahaina_type()
 # $1:cfg_name
 _setup_platform_file()
 {
+    rm -f $USER_PATH/*
     cp -f "$BASEDIR"/config/"$1".json $USER_PATH/cfg_uperf.json
 }
 
