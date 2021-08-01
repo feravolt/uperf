@@ -14,12 +14,12 @@ unify_cgroup()
 {
     # clear stune & uclamp
     for g in background foreground top-app; do
-        lock_val "0" /dev/stune/$g/schedtune.sched_boost_no_override
-        lock_val "0" /dev/stune/$g/schedtune.boost
-        lock_val "0" /dev/stune/$g/schedtune.prefer_idle
-        lock_val "0" /dev/cpuctl/$g/cpu.uclamp.sched_boost_no_override
-        lock_val "0" /dev/cpuctl/$g/cpu.uclamp.min
-        lock_val "0" /dev/cpuctl/$g/cpu.uclamp.latency_sensitive
+        mutate "0" /dev/stune/$g/schedtune.sched_boost_no_override
+        mutate "0" /dev/stune/$g/schedtune.boost
+        mutate "0" /dev/stune/$g/schedtune.prefer_idle
+        mutate "0" /dev/cpuctl/$g/cpu.uclamp.sched_boost_no_override
+        mutate "0" /dev/cpuctl/$g/cpu.uclamp.min
+        mutate "0" /dev/cpuctl/$g/cpu.uclamp.latency_sensitive
     done
     for cg in stune cpuctl; do
         for p in $(cat /dev/$cg/top-app/tasks); do
@@ -27,12 +27,8 @@ unify_cgroup()
         done
     done
 
-    # launcher is usually in foreground group, uperf will take care of them
-    lock_val "1-7" /dev/cpuset/foreground/boost/cpus
-    lock_val "1-7" /dev/cpuset/foreground/cpus
-    lock_val "0-6" /dev/cpuset/restricted/cpus
     # VMOS may set cpuset/background/cpus to "0"
-    lock /dev/cpuset/background/cpus
+    chmod 0444 /dev/cpuset/background/cpus
 
     # Reduce Perf Cluster Wakeup
     # daemons
@@ -109,7 +105,7 @@ unify_cpufreq()
 
     # clear cpu load scale factor
     for i in 0 1 2 3 4 5 6 7 8 9; do
-        lock_val "0" "$CPU"/cpu$i/sched_load_boost
+        mutate "0" "$CPU"/cpu$i/sched_load_boost
     done
 
     # unify governor, use schedutil if kernel has it
@@ -136,20 +132,20 @@ unify_sched()
 {
     # disable sched global placement boost
     mutate "0" "$SCHED"/sched_boost
-    lock_val "1000" "$SCHED"/sched_min_task_util_for_boost
-    lock_val "1000" "$SCHED"/sched_min_task_util_for_colocation
-    lock_val "0" "$SCHED"/sched_conservative_pl
-    lock_val "0" "$SCHED"/sched_force_lb_enable
-    lock_val "0" "$SCHED"/sched_boost_top_app
+    mutate "1000" "$SCHED"/sched_min_task_util_for_boost
+    mutate "1000" "$SCHED"/sched_min_task_util_for_colocation
+    mutate "0" "$SCHED"/sched_conservative_pl
+    mutate "0" "$SCHED"/sched_force_lb_enable
+    mutate "0" "$SCHED"/sched_boost_top_app
 
     # unify WALT HMP sched
     mutate "5" "$SCHED"/sched_ravg_hist_size
-    lock_val "2" "$SCHED"/sched_window_stats_policy
-    lock_val "90" "$SCHED"/sched_spill_load
-    lock_val "1" "$SCHED"/sched_restrict_cluster_spill
-    lock_val "1" "$SCHED"/sched_prefer_sync_wakee_to_waker
-    lock_val "200000" "$SCHED"/sched_freq_inc_notify
-    lock_val "400000" "$SCHED"/sched_freq_dec_notify
+    mutate "2" "$SCHED"/sched_window_stats_policy
+    mutate "90" "$SCHED"/sched_spill_load
+    mutate "1" "$SCHED"/sched_restrict_cluster_spill
+    mutate "1" "$SCHED"/sched_prefer_sync_wakee_to_waker
+    mutate "200000" "$SCHED"/sched_freq_inc_notify
+    mutate "400000" "$SCHED"/sched_freq_dec_notify
 
     # place a little heavier processes on big cluster, due to Cortex-A55 poor efficiency
     # The same Binder, A55@1.0g took 7.3ms，A76@1.0g took 3.0ms, in this case, A76's efficiency is 2.4x of A55's.
@@ -159,25 +155,25 @@ unify_sched()
 
     # 10ms=10000000, prefer to use prev cpu, decrease jitter from 0.5ms to 0.3ms with lpm settings
     # 0.2ms=200000, prevent system_server binders pinned on perf cluster
-    lock_val "200000" "$SCHED"/sched_migration_cost_ns
+    mutate "200000" "$SCHED"/sched_migration_cost_ns
 }
 
 unify_lpm()
 {
     # enter C-state level 3 took ~500us
     # Qualcomm C-state ctrl
-    lock_val "0" "$LPM"/sleep_disabled
-    lock_val "0" "$LPM"/lpm_ipi_prediction
+    mutate "0" "$LPM"/sleep_disabled
+    mutate "0" "$LPM"/lpm_ipi_prediction
     if [ -f "$LPM/bias_hyst" ]; then
-        lock_val "5" "$LPM"/bias_hyst
-        lock_val "0" "$LPM"/lpm_prediction
+        mutate "5" "$LPM"/bias_hyst
+        mutate "0" "$LPM"/lpm_prediction
     elif [ -f "$SCHED/sched_busy_hyst_ns" ]; then
-        lock_val "127" "$SCHED"/sched_busy_hysteresis_enable_cpus # seem not working well on cpu7
-        lock_val "0" "$SCHED"/sched_coloc_busy_hysteresis_enable_cpus
-        lock_val "5000000" "$SCHED"/sched_busy_hyst_ns
-        lock_val "0" "$LPM"/lpm_prediction
+        mutate "127" "$SCHED"/sched_busy_hysteresis_enable_cpus # seem not working well on cpu7
+        mutate "0" "$SCHED"/sched_coloc_busy_hysteresis_enable_cpus
+        mutate "5000000" "$SCHED"/sched_busy_hyst_ns
+        mutate "0" "$LPM"/lpm_prediction
     else
-        lock_val "1" "$LPM"/lpm_prediction
+        mutate "1" "$LPM"/lpm_prediction
     fi
 }
 
@@ -192,11 +188,11 @@ disable_hotplug()
     mutate "N" /sys/module/msm_thermal/parameters/enabled
 
     # 3rd
-    lock_val "0" /sys/kernel/intelli_plug/intelli_plug_active
-    lock_val "0" /sys/module/blu_plug/parameters/enabled
-    lock_val "0" /sys/devices/virtual/misc/mako_hotplug_control/enabled
-    lock_val "0" /sys/module/autosmp/parameters/enabled
-    lock_val "0" /sys/kernel/zen_decision/enabled
+    mutate "0" /sys/kernel/intelli_plug/intelli_plug_active
+    mutate "0" /sys/module/blu_plug/parameters/enabled
+    mutate "0" /sys/devices/virtual/misc/mako_hotplug_control/enabled
+    mutate "0" /sys/module/autosmp/parameters/enabled
+    mutate "0" /sys/kernel/zen_decision/enabled
 
     # bring all cores online
     for i in 0 1 2 3 4 5 6 7 8 9; do
@@ -210,7 +206,7 @@ disable_kernel_boost()
     mutate "0" "/sys/devices/system/cpu/cpu_boost/*"
     mutate "0" "/sys/devices/system/cpu/cpu_boost/parameters/*"
     mutate "0" "/sys/module/cpu_boost/parameters/*"
-    lock_val "0" "/sys/module/msm_performance/parameters/*"
+    mutate "0" "/sys/module/msm_performance/parameters/*"
 
     # MediaTek
     # policy_status
@@ -226,7 +222,7 @@ disable_kernel_boost()
     # [9] PPM_POLICY_SYS_BOOST: disabled
     # [10] PPM_POLICY_HICA: ?
     # Usage: echo <policy_idx> <1(enable)/0(disable)> > /proc/ppm/policy_status
-    lock_val "1" /proc/ppm/enabled
+    mutate "1" /proc/ppm/enabled
     # used by uperf
     mutate "6 1" /proc/ppm/policy_status
 
@@ -237,26 +233,26 @@ disable_kernel_boost()
     # mutate "0" /dev/cluster0_freq_min
     # mutate "0" /dev/cluster1_freq_min
     # mutate "0" /dev/cluster2_freq_min
-    # lock_val "0" /dev/bus_throughput
-    # lock_val "0" /dev/gpu_freq_min
+    # mutate "0" /dev/bus_throughput
+    # mutate "0" /dev/gpu_freq_min
     # Samsung /kernel/sched/ems/...
     mutate "0" /sys/kernel/ems/eff_mode
 
     # Oneplus
-    lock_val "N" "/sys/module/control_center/parameters/*"
-    lock_val "0" /sys/module/aigov/parameters/enable
-    lock_val "0" "/sys/module/houston/parameters/*"
+    mutate "N" "/sys/module/control_center/parameters/*"
+    mutate "0" /sys/module/aigov/parameters/enable
+    mutate "0" "/sys/module/houston/parameters/*"
     # OnePlus opchain always pins UX threads on the big cluster
-    lock_val "0" /sys/module/opchain/parameters/chain_on
+    mutate "0" /sys/module/opchain/parameters/chain_on
 
     # HTC
-    lock_val "0" "/sys/power/pnpmgr/*"
+    mutate "0" "/sys/power/pnpmgr/*"
 
     # 3rd
     mutate "0" "/sys/kernel/cpu_input_boost/*"
     mutate "0" "/sys/module/cpu_input_boost/parameters/*"
-    lock_val "0" "/sys/module/dsboost/parameters/*"
-    lock_val "0" "/sys/module/devfreq_boost/parameters/*"
+    mutate "0" "/sys/module/dsboost/parameters/*"
+    mutate "0" "/sys/module/devfreq_boost/parameters/*"
 }
 
 disable_userspace_boost()

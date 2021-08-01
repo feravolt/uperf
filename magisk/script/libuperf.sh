@@ -48,9 +48,9 @@ uperf_stop()
 uperf_start()
 {
     # raise inotify limit
-    lock_val "524288" /proc/sys/fs/inotify/max_queued_events
-    lock_val "524288" /proc/sys/fs/inotify/max_user_watches
-    lock_val "1024" /proc/sys/fs/inotify/max_user_instances
+    mutate "524288" /proc/sys/fs/inotify/max_queued_events
+    mutate "524288" /proc/sys/fs/inotify/max_user_watches
+    mutate "1024" /proc/sys/fs/inotify/max_user_instances
 
     # cleanup
     cmd settings delete system min_refresh_rate

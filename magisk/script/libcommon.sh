@@ -12,18 +12,6 @@ BASEDIR="/data/adb/modules/uperf"
 ###############################
 
 # $1:value $2:filepaths
-lock_val() 
-{
-    for p in $2; do
-        if [ -f "$p" ]; then
-            chmod 0666 "$p" 2> /dev/null
-            echo "$1" > "$p"
-            chmod 0444 "$p" 2> /dev/null
-        fi
-    done
-}
-
-# $1:value $2:filepaths
 mutate() 
 {
     for p in $2; do
@@ -32,14 +20,6 @@ mutate()
             echo "$1" > "$p"
         fi
     done
-}
-
-# $1:file path
-lock() 
-{
-    if [ -f "$1" ]; then
-        chmod 0444 "$1" 2> /dev/null
-    fi
 }
 
 # $1:value $2:list
