@@ -28,11 +28,4 @@ remove_unnecessary_overlay()
     done
 }
 
-if [ -f "$MODDIR/flags/.need_recuser" ]; then
-    rm -f "$MODDIR"/flags/.need_recuser
-    true > "$MODDIR"/disable
-else
-    true > "$MODDIR"/flags/.need_recuser
-fi
-
 remove_unnecessary_overlay

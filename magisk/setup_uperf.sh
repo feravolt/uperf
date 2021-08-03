@@ -404,8 +404,6 @@ uperf_install()
 
     _set_perm_recursive "$BASEDIR" 0 0 0755 0755
     _set_perm_recursive "$BASEDIR"/bin 0 0 0755 0755
-    # in case of set_perm_recursive is broken
-    chmod 0755 "$BASEDIR"/bin/*
 }
 
 injector_install()
@@ -428,9 +426,6 @@ injector_install()
     _set_perm "$BASEDIR"/bin/sfa_injector 0 0 0755 u:object_r:system_file:s0
     _set_perm "$BASEDIR"/system/lib/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
     _set_perm "$BASEDIR"/system/lib64/libsfanalysis.so 0 0 0644 u:object_r:system_lib_file:s0
-
-    # in case of set_perm_recursive is broken
-    chmod 0755 "$BASEDIR"/bin/*
 	sleep 1
 }
 
@@ -448,7 +443,6 @@ uperf_install
 injector_install
 powerhal_stub_install
 uperf_print_finish
-chown 0:0 -R "$BASEDIR"
 chmod 0755 "$BASEDIR"/bin/*
 chmod 0755 "$BASEDIR"/script/*
 chmod 0755 "$BASEDIR"/*
