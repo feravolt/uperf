@@ -48,8 +48,8 @@ uperf_stop()
 uperf_start()
 {
     # raise inotify limit
-    mutate "524288" /proc/sys/fs/inotify/max_queued_events
-    mutate "524288" /proc/sys/fs/inotify/max_user_watches
+    mutate "131072" /proc/sys/fs/inotify/max_queued_events
+    mutate "131072" /proc/sys/fs/inotify/max_user_watches
     mutate "1024" /proc/sys/fs/inotify/max_user_instances
 
     # cleanup
@@ -58,7 +58,7 @@ uperf_start()
     # start uperf
     "$BIN_DIR/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
     # waiting for uperf initialization
-    sleep 2
+    sleep 5
     # uperf shouldn't preempt foreground tasks
     rebuild_process_scan_cache
     change_task_rt "$UPERF_NAME" "1"
