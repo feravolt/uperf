@@ -11,7 +11,7 @@ wait_until_login()
 {
     # in case of /data encryption is disabled
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
-        sleep 1
+        sleep 2
     done
 
     # we doesn't have the permission to rw "/sdcard" before the user unlocks the screen
@@ -19,10 +19,12 @@ wait_until_login()
     true > "$test_file"
     while [ ! -f "$test_file" ]; do
         true > "$test_file"
-        sleep 1
+        sleep 2
     done
     rm "$test_file"
 }
 
 wait_until_login
-sh "$BASEDIR"/run_uperf.sh
+sh "$BASEDIR"/script/prepare.sh
+sh "$BASEDIR"/script/powercfg_once.sh
+sh "$BASEDIR"/script/start_injector.sh
