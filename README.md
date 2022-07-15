@@ -1,5 +1,3 @@
-# FeraVolt edit for FDE.AI
-
 # Uperf
 
 一个Android用户态性能控制器，实现大部分内核态升频功能，并支持更多情景识别。
@@ -13,9 +11,9 @@
 - 监听cpuset分组更新操作，识别正在操作的APP发生切换
 - 监听唤醒锁更新操作，识别屏幕是否熄灭
 - 监听注入到Surfaceflinger的hook发送的通知，识别渲染开始、滞后、结束
-- 支持Android 6.0 - 10
-- 支持armeabi-v7a，arm64-v8a
-- 支持Magisk方式一键安装，版本不低于18.0
+- 支持Android 6.0 - 12
+- 支持arm64-v8a
+- 支持Magisk方式一键安装，版本不低于20.4+
 - 不依赖于Magisk，可以手动方式安装
 - 除非SfAnalysis注入失败，大多数情况SELinux可保持`enforcing`
 - 不依赖于任何Android应用层框架以及第三方内核
@@ -30,7 +28,7 @@ https://github.com/yc9559/uperf/releases
 ### Magisk方式
 
 1. 下载后通过Magisk Manager刷入，Magisk版本不低于18.0
-2. 重启后查看`/sdcard/yc/uperf/log_uperf.txt`检查uperf是否正常自启动
+2. 重启后查看`/sdcard/Android/yc/uperf/uperf_log.txt`检查uperf是否正常自启动
 
 ### 手动安装
 
@@ -42,17 +40,19 @@ https://github.com/yc9559/uperf/releases
 6. 打开`/data/cache/injector.log`，检查sfanalysis注入是否成功
 7. 如果关联自启动到第三方APP，设置在开机完成后执行`run_uperf.sh`
 8. 如果关联自启动到系统启动脚本，插入`sh /data/uperf/initsvc_uperf.sh`
-9. 重启后查看`/sdcard/yc/uperf/log_uperf.txt`检查uperf是否正常自启动
+9. 重启后查看`/sdcard/yc/uperf/uperf_log.txt`检查uperf是否正常自启动
 
 ### 性能模式切换
 
 #### 修改启动时的默认性能模式
 
-1. 打开`/sdcard/yc/uperf/panel_uperf.txt`
-2. 修改`default_mode=balance`, 其中`balance`为开机后使用的默认性能模式，可选的模式有:
+1. 打开`/sdcard/Android/yc/uperf/cur_powermode.txt`
+2. 修改`auto`, 其中`auto`为开机后使用的默认性能模式，可选的模式有:
+   - `auto`根据正在使用的App进行动态响应
    - `balance`均衡模式，比原厂略流畅的同时略省电
    - `powersave`卡顿模式，保证基本流畅的同时尽可能降低功耗
    - `performance`费电模式，保证费电的同时多一点流畅度
+   - `fast`性能模式，相对于均衡模式更加激进
 3. 重启
 
 #### 启动完成后切换性能模式
@@ -61,7 +61,7 @@ https://github.com/yc9559/uperf/releases
 执行`sh /data/powercfg.sh balance`，其中`balance`是想要切换到的性能模式名称。  
 
 方法2:  
-安装[微工具箱](https://www.coolapk.com/apk/com.omarea.vtools)为APP绑定对应的性能模式。  
+安装[Scene](https://www.coolapk.com/apk/com.omarea.vtools)为APP绑定对应的性能模式。  
 
 ## 常见问题
 
@@ -119,14 +119,21 @@ A：此硬件平台没有预制的配置文件，可能需要自行适配。
 
 ### 情景识别
 
+注：v3版本已经修改，此部分不适用
 Uperf支持如下几种情景识别：  
 - `None`，无Hint的常规状态
+- `Touch`，触摸到屏幕切换的Hint
+- `Pressed`，长按时切换的的Hint
 - `Tap`，在刚触摸到屏幕切换的Hint
 - `Swipe`，在屏幕滑动一段距离后切换的Hint
 - `HeavyLoad`，在Tap或Swipe检测到重负载后切换，负载降低后回落到Tap
-- `AndroidAM`，在ActivityManager活跃时触发的Hint，例如无input事件的屏下指纹解锁
-- `Standby`，屏幕熄灭时的Hint，一般滞后20秒
-- `SfLag`，给Surfaceflinger的渲染提交出现滞后的Hint
+- `SfLag`，给Surfaceflinger的渲染提交出现滞后切换的Hint
+- `SfBoost`，Surfaceflinger的渲染提交需要加速切换的Hint
+- `Standby`，屏幕熄灭时的Hint，一般滞后20秒(隐藏Hint)
+- `SsAnim`，系统动画播放切换的Hint
+- `WakeUp`，亮屏解锁切换的Hint
+
+
 
 #### 触摸信号识别
 
@@ -160,7 +167,7 @@ Sfanalysis是一个独立于Uperf的模块，注入到surfaceflinger进行修改
 
 ![检测到渲染延迟立即拉升CPU频率](./media/sflag.png)
 
-渲染提交滞后对应的Hint`SfLag`与重负载一样，有调用频率限制避免长时间拉升高频，相关参数暂时没有开放更改。`SfLag`使用可用次数缓冲池控制调用频率，每满400ms间隔可用次数+1，最大到20次。为了避免不必要的频率拉升，只允许从`Tap`、`Swipe`、`AndroidAM`转移到`SfLag`。SfAnalysis正常工作后在日志以如下方式体现：  
+渲染提交滞后对应的Hint`SfLag`与重负载一样，有调用频率限制避免长时间拉升高频，相关参数暂时没有开放更改。`SfLag`使用可用次数缓冲池控制调用频率，每满400ms间隔可用次数+1，最大到20次。为了避免不必要的频率拉升，只允许从`Tap`、`Swipe`、`Touch`、`Pressed`转移到`SfLag`。SfAnalysis正常工作后在日志以如下方式体现：  
 ```
 [13:03:36][I] SfAnalysis: Surfaceflinger analysis connected
 ```

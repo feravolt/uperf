@@ -1,7 +1,6 @@
 id=uperf
 name=Uperf (FDE.AI edition)
-version=v2.01 (21.08.15)
-versionCode=201
+version=v3.01 (22.07.09)
+versionCode=320709
 author=Matt Yang
-description=Userspace performance controller for android. Modified by FeraVolt for FDE.AI v12.5.1+.
-minMagisk=20400
+description=Userspace performance controller for android. Modified by FeraVolt for FDE.AI v22.x+.

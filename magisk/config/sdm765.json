@@ -1,578 +1,587 @@
 {
-    "meta": {
-        "name": "sdm765/sdm765g[21.07.25]",
-        "author": "yc@coolapk",
-        "features": "touch cpuload render standby sfanalysis ssanalysis dispfeature"
-    },
-    "common": {
-        "verboseLog": {
-            "note": "用于调试的详细日志",
-            "enable": false
-        },
-        "switchInode": {
-            "note": "接收性能模式切换的inode节点",
-            "path": "/sdcard/yc/uperf/cur_powermode"
-        },
-        "inputReader": {
-            "note": "用户输入读取提供触摸按下/点击/滑动hint。sampleIntervalMinMs:最小用户输入采样间隔。swipeThdPct:滑动大于此相对距离阈值认为是滑动操作。gesturePctX:全面屏手势识别起始坐标X轴阈值。gesturePctY:全面屏手势识别起始坐标X轴阈值。gestureDelayMs:全面屏手势退出延时。holdEnterMs:长时间保持触摸的时长。",
-            "enable": false,
-            "sampleIntervalMinMs": 20,
-            "swipeThdPct": 0.04,
-            "gesturePctX": 0.04,
-            "gesturePctY": 0.03,
-            "gestureDelayMs": 3000,
-            "holdEnterMs": 1000
-        },
-        "loadMonitor": {
-            "note": "系统负载监视器提供重负载hint。load:系统负载为所有核心的负载总和，单个核心负载=频率(Ghz)*效率(A53@1.0g为100)*负载(%)。heavyLoad:进入HeavyLoad的系统负载阈值。idleLoad:退出HeavyLoad的系统负载阈值。requestBurstSlackMs:在上一次HeavyLoad结束后，且在requestBurstSlack时间内没有HeavyLoad请求，才能响应新的HeavyLoad。",
-            "enable": false,
-            "sampleIntervalMinMs": 100,
-            "heavyLoad": 1420,
-            "idleLoad": 950,
-            "requestBurstSlackMs": 3000
-        },
-        "sfAnalysis": {
-            "note": "surfaceflinger分析器提供渲染开始/结束/滞后hint。boostCntMax:SfBoost可用次数缓存上限。boostGrowQuantumMs:每满此间隔没有SfBoost请求，则SfBoost可用次数+1。renderIdleSlackMs:进入渲染结束状态前的滞后时长。",
-            "enable": true,
-            "boostCntMax": 50,
-            "boostGrowQuantumMs": 100,
-            "renderIdleSlackMs": 1
-        },
-        "ssAnalysis": {
-            "note": "system_server分析器提供系统过渡动画开始/结束hint。",
-            "enable": true
-        },
-        "uxAffinity": {
-            "note": "UX线程自动设置，固定高优先级的UX线程到大核，并限制低优先级线程的需求响应",
-            "enable": true
-        },
-        "dispFeature": {
-            "note": "动态屏幕刷新率。path:白名单配置文件路径。rampDownDelayMs:降低屏幕刷新率前延时，降低频繁切换对视觉效果的影响。",
-            "enable": false,
-            "path": "/sdcard/yc/uperf/cfg_uperf_display.txt",
-            "rampDownDelayMs": 2000
-        },
-        "dispatch": [
-            {
-                "hint": "None",
-                "action": "normal",
-                "maxDuration": 0,
-                "note": "无Hint的常规状态"
-            },
-            {
-                "hint": "Active",
-                "action": "active",
-                "maxDuration": 0,
-                "note": "屏幕渲染刷新时切换的Hint"
-            },
-            {
-                "hint": "Touch",
-                "action": "interaction",
-                "maxDuration": 0,
-                "note": "触摸到屏幕切换的Hint"
-            },
-            {
-                "hint": "Pressed",
-                "action": "pressed",
-                "maxDuration": 0,
-                "note": "按住屏幕切换的Hint"
-            },
-            {
-                "hint": "Tap",
-                "action": "interaction",
-                "maxDuration": 2000,
-                "note": "点击松开屏幕切换的Hint"
-            },
-            {
-                "hint": "Swipe",
-                "action": "interaction",
-                "maxDuration": 4000,
-                "note": "在屏幕滑动一段距离松开后切换的Hint"
-            },
-            {
-                "hint": "HeavyLoad",
-                "action": "heavyLoad",
-                "maxDuration": 2000,
-                "note": "在Tap或Swipe检测到重负载后切换，负载降低后回落到Tap"
-            },
-            {
-                "hint": "SfLag",
-                "action": "sfLag",
-                "maxDuration": 20,
-                "note": "给Surfaceflinger的渲染提交出现滞后的Hint，滞后的渲染完成后会提前退出"
-            },
-            {
-                "hint": "SfBoost",
-                "action": "sfBoost",
-                "maxDuration": 100,
-                "note": "同SfLag，针对某些重负载场景"
-            },
-            {
-                "hint": "SsAnim",
-                "action": "heavyLoad",
-                "maxDuration": 300,
-                "note": "系统过渡动画的Hint"
-            },
-            {
-                "hint": "Wakeup",
-                "action": "heavyLoad",
-                "maxDuration": 1500,
-                "note": "屏幕点亮Hint"
-            }
-        ],
-        "stateTransition": {
-            "note": "Hint状态转移表，key为源状态，value为目的状态列表（按优先级降序排列），不含状态退出转移",
-            "None": [
-                "Wakeup",
-                "Touch",
-                "Pressed",
-                "Tap",
-                "Swipe",
-                "Active"
-            ],
-            "Active": [
-                "Wakeup",
-                "Touch",
-                "Pressed",
-                "Tap",
-                "Swipe"
-            ],
-            "Touch": [
-                "Wakeup",
-                "SsAnim",
-                "SfLag",
-                "HeavyLoad"
-            ],
-            "Pressed": [
-                "SsAnim",
-                "SfBoost"
-            ],
-            "Tap": [
-                "SsAnim",
-                "SfLag",
-                "HeavyLoad"
-            ],
-            "Swipe": [
-                "SsAnim",
-                "SfLag",
-                "HeavyLoad"
-            ],
-            "HeavyLoad": [
-                "SfBoost"
-            ],
-            "SfLag": [],
-            "SfBoost": [],
-            "SsAnim": [
-                "SfBoost"
-            ],
-            "Wakeup": [
-                "SfBoost"
-            ]
+  "meta": {
+    "name": "sdm765/sdm765g/sdm768g[22.07.09] (FDE.AI Edition)", 
+    "author": "yc@coolapk"
+  }, 
+  "modules": {
+    "switcher": {
+      "switchInode": "/sdcard/Android/yc/uperf/cur_powermode.txt", 
+      "perapp": "/sdcard/Android/yc/uperf/perapp_powermode.txt", 
+      "hintDuration": {
+        "idle": 0.0, 
+        "touch": 4.0, 
+        "trigger": 0.03, 
+        "gesture": 0.1, 
+        "switch": 0.4, 
+        "junk": 0.06
+      }
+    }, 
+    "atrace": {
+      "enable": false
+    }, 
+    "log": {
+      "level": "info"
+    }, 
+    "input": {
+      "enable": true, 
+      "swipeThd": 0.01, 
+      "gestureThdX": 0.03, 
+      "gestureThdY": 0.03, 
+      "gestureDelayTime": 2.0, 
+      "holdEnterTime": 1.0
+    }, 
+    "sfanalysis": {
+      "enable": true, 
+      "renderIdleSlackTime": 0.2
+    }, 
+    "cpu": {
+      "enable": true, 
+      "powerModel": [
+        {
+          "efficiency": 115, 
+          "nr": 6, 
+          "typicalPower": 0.4, 
+          "typicalFreq": 1.8, 
+          "sweetFreq": 1.4, 
+          "plainFreq": 1.0, 
+          "freeFreq": 0.6
+        }, 
+        {
+          "efficiency": 250, 
+          "nr": 1, 
+          "typicalPower": 1.39, 
+          "typicalFreq": 2.4, 
+          "sweetFreq": 1.7, 
+          "plainFreq": 1.0, 
+          "freeFreq": 0.7
+        }, 
+        {
+          "efficiency": 250, 
+          "nr": 1, 
+          "typicalPower": 1.76, 
+          "typicalFreq": 2.8, 
+          "sweetFreq": 2.2, 
+          "plainFreq": 1.4, 
+          "freeFreq": 0.8
         }
-    },
-    "platform": {
-        "noteClusterCpuId": "集群的CPU代表id",
-        "clusterCpuId": [
-            0,
-            6,
-            7
-        ],
-        "noteEfficiency": "每个CPU核心的的相对同频性能，以Cortex-A53@1.0g为100",
-        "efficiency": [
-            115,
-            115,
-            115,
-            115,
-            115,
-            115,
-            250,
-            250
-        ],
-        "knobs": [
-            {
-                "name": "cpuFreqMax",
-                "path": "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq",
-                "type": "cpufreq",
-                "enable": true,
-                "note": "集群最大频率，单位为100Mhz"
-            },
-            {
-                "name": "cpuFreqMin",
-                "path": "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq",
-                "type": "cpufreq",
-                "enable": true,
-                "note": "集群最小频率，单位为100Mhz"
-            },
-            {
-                "name": "schedBoost",
-                "path": "/proc/sys/kernel/sched_boost",
-                "type": "string",
-                "enable": true,
-                "note": "异构调度器全局任务放置boost，不考虑能耗代价"
-            },
-            {
-                "name": "topBoost",
-                "path": "/dev/stune/top-app/schedtune.boost",
-                "type": "string",
-                "enable": true,
-                "note": "正在交互的App的schedtune.boost"
-            },
-            {
-                "name": "heavyBoost",
-                "path": "/dev/stune/rt/schedtune.boost",
-                "type": "string",
-                "enable": true,
-                "note": "重负载线程的schedtune.boost"
-            },
-            {
-                "name": "llccBwMax",
-                "path": "/sys/class/devfreq/soc:qcom,cpu-cpu-llcc-bw/max_freq",
-                "type": "string",
-                "enable": true,
-                "note": "LLCC最大带宽"
-            },
-            {
-                "name": "llccBwMin",
-                "path": "/sys/class/devfreq/soc:qcom,cpu-cpu-llcc-bw/min_freq",
-                "type": "string",
-                "enable": true,
-                "note": "LLCC最小带宽"
-            },
-            {
-                "name": "ddrBwMax",
-                "path": "/sys/class/devfreq/soc:qcom,cpu-llcc-ddr-bw/max_freq",
-                "type": "string",
-                "enable": true,
-                "note": "DDR最大带宽"
-            },
-            {
-                "name": "ddrBwMin",
-                "path": "/sys/class/devfreq/soc:qcom,cpu-llcc-ddr-bw/min_freq",
-                "type": "string",
-                "enable": true,
-                "note": "DDR最小带宽"
-            },
-            {
-                "name": "l3LatBig",
-                "path": "/sys/class/devfreq/18321000.qcom,devfreq-l3:qcom,cpu6-cpu-l3-lat/mem_latency/ratio_ceil",
-                "type": "string",
-                "enable": true,
-                "note": "大核L3延迟控制，在L3命中率降低时，值越大越容易提升L3频率"
-            },
-            {
-                "name": "ddrLatBig",
-                "path": "/sys/class/devfreq/soc:qcom,cpu6-llcc-ddr-lat/mem_latency/ratio_ceil",
-                "type": "string",
-                "enable": true,
-                "note": "大核DDR延迟控制，在DDR命中率降低时，值越大越容易提升DDR频率"
-            },
-            {
-                "name": "uxAffinity",
-                "path": "placeholder",
-                "type": "uxaffinity",
-                "enable": true,
-                "note": "0=idle，1=active，2=pulse，3=heavy，4=unlimited"
-            },
-            {
-                "name": "dispFeature",
-                "path": "placeholder",
-                "type": "dispfeature",
-                "enable": true,
-                "note": "0=空闲，1=活动，2=正在交互"
-            }
+      ]
+    }, 
+    "sysfs": {
+      "enable": false, 
+      "knob": {}
+    }, 
+    "sched": {
+      "enable": true, 
+      "cpumask": {
+        "all": [
+          0, 
+          1, 
+          2, 
+          3, 
+          4, 
+          5, 
+          6, 
+          7
+        ], 
+        "c0": [
+          0, 
+          1, 
+          2, 
+          3, 
+          4, 
+          5
+        ], 
+        "c1": [
+          6, 
+          7
+        ], 
+        "c2": [
+          6, 
+          7
         ]
-    },
-    "powermodes": [
-        {
-            "name": "balance",
-            "note": "均衡模式，比原厂略流畅的同时略省电",
-            "actions": {
-                "normal": {
-                    "cpuFreqMax": "16,20,24",
-                    "cpuFreqMin": "1,6,6",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "6881",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "0",
-                    "dispFeature": "0"
-                },
-                "active": {
-                    "cpuFreqMax": "17,20,24",
-                    "cpuFreqMin": "7,10,10",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "6881",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "0",
-                    "dispFeature": "1"
-                },
-                "interaction": {
-                    "cpuFreqMax": "17,16,21",
-                    "cpuFreqMin": "11,10,10",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "10",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "8000",
-                    "ddrLatBig": "800",
-                    "uxAffinity": "1",
-                    "dispFeature": "2"
-                },
-                "pressed": {
-                    "cpuFreqMax": "17,18,21",
-                    "cpuFreqMin": "11,10,10",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "10",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "8000",
-                    "ddrLatBig": "800",
-                    "uxAffinity": "1",
-                    "dispFeature": "2"
-                },
-                "heavyLoad": {
-                    "cpuFreqMax": "18,20,24",
-                    "cpuFreqMin": "11,14,15",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "10",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "20000",
-                    "ddrLatBig": "4000",
-                    "uxAffinity": "3",
-                    "dispFeature": "2"
-                },
-                "sfLag": {
-                    "cpuFreqMax": "17,20,21",
-                    "cpuFreqMin": "11,20,10",
-                    "uxAffinity": "1"
-                },
-                "sfBoost": {
-                    "cpuFreqMax": "18,20,24",
-                    "cpuFreqMin": "11,18,24",
-                    "topBoost": "0",
-                    "heavyBoost": "10",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "16265",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "7980",
-                    "uxAffinity": "2"
-                }
-            }
-        },
-        {
-            "name": "powersave",
-            "note": "卡顿模式，保证基本流畅的同时尽可能降低功耗",
-            "actions": {
-                "normal": {
-                    "cpuFreqMax": "14,14,16",
-                    "cpuFreqMin": "1,6,6",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "14638",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "6192",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "0",
-                    "dispFeature": "0"
-                },
-                "active": {
-                    "cpuFreqMax": "16,12,14",
-                    "cpuFreqMin": "7,6,6",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "14638",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "6192",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "0",
-                    "dispFeature": "1"
-                },
-                "interaction": {
-                    "cpuFreqMax": "16,10,12",
-                    "cpuFreqMin": "7,6,7",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "1",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "6881",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "8000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "1",
-                    "dispFeature": "2"
-                },
-                "pressed": {
-                    "cpuFreqMax": "18,14,16",
-                    "cpuFreqMin": "7,6,7",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "1",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "8000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "1",
-                    "dispFeature": "2"
-                },
-                "heavyLoad": {
-                    "cpuFreqMax": "18,16,18",
-                    "cpuFreqMin": "7,8,9",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "1",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "8945",
-                    "ddrBwMax": "6881",
-                    "ddrBwMin": "2408",
-                    "l3LatBig": "8000",
-                    "ddrLatBig": "800",
-                    "uxAffinity": "3",
-                    "dispFeature": "2"
-                },
-                "sfLag": {
-                    "cpuFreqMax": "16,16,12",
-                    "cpuFreqMin": "7,16,7",
-                    "uxAffinity": "1"
-                },
-                "sfBoost": {
-                    "cpuFreqMax": "18,20,23",
-                    "cpuFreqMin": "7,16,18",
-                    "topBoost": "0",
-                    "heavyBoost": "1",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "14638",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "4816",
-                    "uxAffinity": "2"
-                }
-            }
-        },
-        {
-            "name": "performance",
-            "note": "费电模式，保证费电的同时多一点流畅度",
-            "actions": {
-                "normal": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "5,6,6",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "4",
-                    "dispFeature": "0"
-                },
-                "active": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "9,10,12",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "0",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "0",
-                    "l3LatBig": "4000",
-                    "ddrLatBig": "400",
-                    "uxAffinity": "4",
-                    "dispFeature": "1"
-                },
-                "interaction": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "9,14,16",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "14638",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "4816",
-                    "l3LatBig": "20000",
-                    "ddrLatBig": "4000",
-                    "uxAffinity": "3",
-                    "dispFeature": "2"
-                },
-                "pressed": {
-                    "cpuFreqMax": "18,20,23",
-                    "cpuFreqMin": "9,20,23",
-                    "schedBoost": "0",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "14638",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "4816",
-                    "l3LatBig": "20000",
-                    "ddrLatBig": "4000",
-                    "uxAffinity": "3",
-                    "dispFeature": "2"
-                },
-                "heavyLoad": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "18,20,23",
-                    "schedBoost": "1",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "16265",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "7980",
-                    "l3LatBig": "20000",
-                    "ddrLatBig": "4000",
-                    "uxAffinity": "3",
-                    "dispFeature": "2"
-                },
-                "sfLag": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "9,22,23",
-                    "uxAffinity": "3"
-                },
-                "sfBoost": {
-                    "cpuFreqMax": "18,22,24",
-                    "cpuFreqMin": "9,22,24",
-                    "topBoost": "0",
-                    "heavyBoost": "0",
-                    "llccBwMax": "16265",
-                    "llccBwMin": "16265",
-                    "ddrBwMax": "7980",
-                    "ddrBwMin": "7980",
-                    "uxAffinity": "3"
-                }
-            }
+      }, 
+      "affinity": {
+        "auto": {
+          "bg": "", 
+          "fg": "", 
+          "idle": "", 
+          "touch": "", 
+          "boost": ""
+        }, 
+        "norm": {
+          "bg": "", 
+          "fg": "all", 
+          "idle": "all", 
+          "touch": "all", 
+          "boost": "all"
+        }, 
+        "bg": {
+          "bg": "", 
+          "fg": "c0", 
+          "idle": "c0", 
+          "touch": "c0", 
+          "boost": "c0"
+        }, 
+        "ui": {
+          "bg": "", 
+          "fg": "all", 
+          "idle": "c1", 
+          "touch": "c1", 
+          "boost": "all"
+        }, 
+        "crit": {
+          "bg": "", 
+          "fg": "all", 
+          "idle": "all", 
+          "touch": "c1", 
+          "boost": "c1"
+        }, 
+        "gtcoop": {
+          "bg": "", 
+          "fg": "all", 
+          "idle": "all", 
+          "touch": "c1", 
+          "boost": "all"
+        }, 
+        "gtmain": {
+          "bg": "", 
+          "fg": "all", 
+          "idle": "all", 
+          "touch": "c2", 
+          "boost": "all"
         }
-    ]
+      }, 
+      "prio": {
+        "auto": {
+          "bg": 0, 
+          "fg": 0, 
+          "idle": 0, 
+          "touch": 0, 
+          "boost": 0
+        }, 
+        "norm": {
+          "bg": -1, 
+          "fg": -1, 
+          "idle": -1, 
+          "touch": -1, 
+          "boost": -1
+        }, 
+        "bg": {
+          "bg": -3, 
+          "fg": 139, 
+          "idle": 139, 
+          "touch": 139, 
+          "boost": 139
+        }, 
+        "coop": {
+          "bg": -3, 
+          "fg": 124, 
+          "idle": 122, 
+          "touch": 122, 
+          "boost": 130
+        }, 
+        "ui": {
+          "bg": -3, 
+          "fg": 120, 
+          "idle": 110, 
+          "touch": 98, 
+          "boost": 116
+        }, 
+        "rtusr": {
+          "bg": 98, 
+          "fg": 98, 
+          "idle": 97, 
+          "touch": 97, 
+          "boost": 98
+        }, 
+        "rtsys": {
+          "bg": 97, 
+          "fg": 97, 
+          "idle": 96, 
+          "touch": 96, 
+          "boost": 97
+        }
+      }, 
+      "rules": [
+        {
+          "name": "Launcher", 
+          "regex": "/HOME_PACKAGE/", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": "/MAIN_THREAD/", 
+              "ac": "crit", 
+              "pc": "rtusr"
+            }, 
+            {
+              "k": "^(RenderThread|GLThread)", 
+              "ac": "crit", 
+              "pc": "rtusr"
+            }, 
+            {
+              "k": "^(GPU completion|HWC release|hwui|FramePolicy|ScrollPolicy|ged-swd)", 
+              "ac": "bg", 
+              "pc": "rtusr"
+            }, 
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "SurfaceFlinger", 
+          "regex": "/system/bin/surfaceflinger", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": "/MAIN_THREAD/", 
+              "ac": "crit", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^(app|RenderEngine)", 
+              "ac": "crit", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^Binder:", 
+              "ac": "auto", 
+              "pc": "auto"
+            }, 
+            {
+              "k": ".", 
+              "ac": "bg", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "SystemServer", 
+          "regex": "system_server", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": "^(TaskSnapshot|Greezer|CachedApp|SystemPressure|SensorService)|[Mm]emory", 
+              "ac": "bg", 
+              "pc": "auto"
+            }, 
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "SystemUI", 
+          "regex": "com.android.systemui", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": "^(Jit thread pool|HeapTaskDaemon|FinalizerDaemon|ReferenceQueueD)", 
+              "ac": "bg", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "MediaProvider", 
+          "regex": "^com.android.providers.media", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "bg"
+            }
+          ]
+        }, 
+        {
+          "name": "Memory reclaim", 
+          "regex": "swapd|compactd", 
+          "pinned": true, 
+          "rules": [
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "bg"
+            }
+          ]
+        }, 
+        {
+          "name": "Phone", 
+          "regex": "com.android.phone", 
+          "pinned": false, 
+          "rules": [
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "Other system processes", 
+          "regex": "^(/system|/vendor|magiskd|zygiskd)|@|-service$", 
+          "pinned": false, 
+          "rules": [
+            {
+              "k": ".", 
+              "ac": "auto", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "App co-process", 
+          "regex": "[.].+:", 
+          "pinned": false, 
+          "rules": [
+            {
+              "k": "^(Jit thread pool|HeapTaskDaemon|FinalizerDaemon|ReferenceQueueD)", 
+              "ac": "bg", 
+              "pc": "auto"
+            }
+          ]
+        }, 
+        {
+          "name": "Default rule", 
+          "regex": ".", 
+          "pinned": false, 
+          "rules": [
+            {
+              "k": "/MAIN_THREAD/", 
+              "ac": "ui", 
+              "pc": "ui"
+            }, 
+            {
+              "k": "^(UnityMain|RenderThread |GameThread)", 
+              "ac": "gtmain", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^(Unity|Worker Thread|TaskGraph|RHIThread)", 
+              "ac": "gtcoop", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^(RenderThread|GLThread|JNISurfaceText|IJK_External_Re)|[Aa]nim|([.]raster|[.]ui)$", 
+              "ac": "ui", 
+              "pc": "ui"
+            }, 
+            {
+              "k": "^(Chrome_InProc|CrRendererMain|CrGpuMain|CompositorTile)", 
+              "ac": "norm", 
+              "pc": "norm"
+            }, 
+            {
+              "k": "^(Viz|Chrome_|Compositor)|[Vv]sync|mali-", 
+              "ac": "ui", 
+              "pc": "ui"
+            }, 
+            {
+              "k": "^(OkHttp|Ysa|Xqa|Rx|TVKDL|APM|tp-|cgi-|ODCP-|Bugly|xlog_)", 
+              "ac": "bg", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^(xg_vip_service|Profile|SearchDaemon|default_matrix|FrameDecoder|FrameSeq)", 
+              "ac": "bg", 
+              "pc": "auto"
+            }, 
+            {
+              "k": "^(GPU completion|HWC release|hwui|FramePolicy|ScrollPolicy|ged-swd)", 
+              "ac": "bg", 
+              "pc": "rtusr"
+            }, 
+            {
+              "k": "^(JS|libweexjsb|WeexJsBridge|mqt_native|mqt_js|JavaScriptTh)", 
+              "ac": "norm", 
+              "pc": "coop"
+            }, 
+            {
+              "k": "^(pool-|glide-|launcher-)|[Dd]ownload|[Ss]chedule|[Ww]ork|[Pp]ool|[Dd]efau|Fresco", 
+              "ac": "norm", 
+              "pc": "coop"
+            }, 
+            {
+              "k": ".", 
+              "ac": "norm", 
+              "pc": "norm"
+            }
+          ]
+        }
+      ]
+    }
+  }, 
+  "initials": {
+    "cpu": {
+      "baseSampleTime": 0.01, 
+      "baseSlackTime": 0.01, 
+      "latencyTime": 0.5, 
+      "slowLimitPower": 3.0, 
+      "fastLimitPower": 6.0, 
+      "fastLimitCapacity": 10.0, 
+      "fastLimitRecoverScale": 0.3, 
+      "predictThd": 0.3, 
+      "margin": 0.25, 
+      "burst": 0.0, 
+      "guideCap": true, 
+      "limitEfficiency": false
+    }, 
+    "sysfs": {}, 
+    "sched": {
+      "scene": "idle"
+    }
+  }, 
+  "presets": {
+    "balance": {
+      "*": {
+        "cpu.latencyTime": 0.2, 
+        "cpu.slowLimitPower": 2.0, 
+        "cpu.fastLimitPower": 2.0, 
+        "cpu.fastLimitCapacity": 20.0, 
+        "cpu.margin": 0.2
+      }, 
+      "idle": {
+        "cpu.baseSampleTime": 0.04, 
+        "cpu.baseSlackTime": 0.08, 
+        "cpu.predictThd": 0.3, 
+        "cpu.limitEfficiency": true, 
+        "sched.scene": "idle"
+      }, 
+      "touch": {
+        "cpu.baseSampleTime": 0.04, 
+        "sched.scene": "touch"
+      }, 
+      "trigger": {
+        "cpu.margin": 0.4, 
+        "sched.scene": "touch"
+      }, 
+      "gesture": {
+        "cpu.margin": 0.6, 
+        "sched.scene": "touch"
+      }, 
+      "junk": {
+        "cpu.burst": 0.6, 
+        "sched.scene": "touch"
+      }, 
+      "switch": {
+        "cpu.latencyTime": 0.0, 
+        "cpu.slowLimitPower": 3.0, 
+        "cpu.fastLimitPower": 6.0, 
+        "cpu.fastLimitRecoverScale": 0.1, 
+        "cpu.margin": 0.4, 
+        "sched.scene": "boost"
+      }
+    }, 
+    "powersave": {
+      "*": {
+        "cpu.latencyTime": 0.4, 
+        "cpu.slowLimitPower": 1.0, 
+        "cpu.fastLimitPower": 1.0, 
+        "cpu.fastLimitCapacity": 5.0, 
+        "cpu.margin": 0.1
+      }, 
+      "idle": {
+        "cpu.baseSampleTime": 0.04, 
+        "cpu.baseSlackTime": 0.08, 
+        "cpu.predictThd": 1.0, 
+        "cpu.limitEfficiency": true, 
+        "sched.scene": "idle"
+      }, 
+      "touch": {
+        "cpu.baseSampleTime": 0.04, 
+        "sched.scene": "touch"
+      }, 
+      "trigger": {
+        "cpu.margin": 0.4, 
+        "sched.scene": "touch"
+      }, 
+      "gesture": {
+        "cpu.margin": 0.6, 
+        "sched.scene": "touch"
+      }, 
+      "junk": {
+        "cpu.burst": 0.3, 
+        "sched.scene": "touch"
+      }, 
+      "switch": {
+        "cpu.latencyTime": 0.0, 
+        "cpu.slowLimitPower": 1.5, 
+        "cpu.fastLimitPower": 3.0, 
+        "cpu.fastLimitRecoverScale": 0.1, 
+        "cpu.margin": 0.3, 
+        "sched.scene": "boost"
+      }
+    }, 
+    "performance": {
+      "*": {
+        "cpu.latencyTime": 0.0, 
+        "cpu.slowLimitPower": 4.0, 
+        "cpu.fastLimitPower": 10.0, 
+        "cpu.fastLimitCapacity": 360.0, 
+        "cpu.margin": 0.4
+      }, 
+      "idle": {
+        "cpu.baseSampleTime": 0.01, 
+        "cpu.baseSlackTime": 0.04, 
+        "sched.scene": "idle"
+      }, 
+      "touch": {
+        "sched.scene": "touch"
+      }, 
+      "trigger": {
+        "cpu.margin": 0.8, 
+        "sched.scene": "touch"
+      }, 
+      "gesture": {
+        "cpu.margin": 0.8, 
+        "sched.scene": "touch"
+      }, 
+      "junk": {
+        "cpu.burst": 0.5, 
+        "sched.scene": "touch"
+      }, 
+      "switch": {
+        "cpu.burst": 0.2, 
+        "sched.scene": "boost"
+      }
+    }, 
+    "fast": {
+      "*": {
+        "cpu.latencyTime": 0.0, 
+        "cpu.slowLimitPower": 2.5, 
+        "cpu.fastLimitPower": 2.5, 
+        "cpu.fastLimitCapacity": 0.0, 
+        "cpu.margin": 0.4
+      }, 
+      "idle": {
+        "cpu.baseSampleTime": 0.01, 
+        "cpu.baseSlackTime": 0.04, 
+        "sched.scene": "idle"
+      }, 
+      "touch": {
+        "sched.scene": "touch"
+      }, 
+      "trigger": {
+        "cpu.margin": 0.8, 
+        "sched.scene": "touch"
+      }, 
+      "gesture": {
+        "cpu.margin": 0.8, 
+        "sched.scene": "touch"
+      }, 
+      "junk": {
+        "cpu.burst": 0.5, 
+        "sched.scene": "touch"
+      }, 
+      "switch": {
+        "cpu.burst": 0.2, 
+        "sched.scene": "boost"
+      }
+    }
+  }
 }

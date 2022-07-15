@@ -1,14 +1,25 @@
 #!/system/bin/sh
+#
+# Copyright (C) 2021-2022 Matt Yang
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-# Module Path Header
-# https://github.com/yc9559/
-# Author: Matt Yang
+MODULE_PATH="$(dirname $(readlink -f "$0"))"
+MODULE_PATH="${MODULE_PATH%\/script}"
+SCRIPT_PATH="$MODULE_PATH/script"
+BIN_PATH="$MODULE_PATH/bin"
+FLAG_PATH="$MODULE_PATH/flag"
+USER_PATH="/sdcard/Android/yc/uperf"
 
-MODULE_PATH="/data/adb/modules/uperf"
-USER_PATH="/sdcard/yc/uperf"
-PANEL_FILE="$USER_PATH/panel_uperf.txt"
-LOG_FILE="$USER_PATH/log_uperf_initsvc.log"
-FLAGS="$MODULE_PATH/flags"
-SCRIPT_DIR="$MODULE_PATH/script"
-BIN_DIR="$MODULE_PATH/bin"
 PATH="/sbin:/system/sbin:/system/xbin:/system/bin:/vendor/xbin:/vendor/bin"

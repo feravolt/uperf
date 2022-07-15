@@ -1,66 +1,47 @@
 #!/system/bin/sh
-# Uperf Library
-# https://github.com/yc9559/
-# Author: Matt Yang
-# Version: 20210304
+#
+# Copyright (C) 2021-2022 Matt Yang
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-BASEDIR="/data/adb/modules/uperf"
-. $BASEDIR/script/pathinfo.sh
-. $BASEDIR/script/libcommon.sh
-. $BASEDIR/script/libcgroup.sh
+BASEDIR="$(dirname "$0")"
+. $BASEDIR/pathinfo.sh
+. $BASEDIR/libcommon.sh
+. $BASEDIR/libcgroup.sh
 
-###############################
-# PATHs
-###############################
-
-UPERF_NAME="uperf"
-
-###############################
-# Uperf tool functions
-###############################
-
-uperf_config_path="$USER_PATH/cfg_uperf.json"
-uperf_log_path="$USER_PATH/log_uperf.txt"
-uperf_powermode_node="$USER_PATH/cur_powermode"
-
-# $1:mode_name
-uperf_set_powermode()
-{
-    mutate "$1" $uperf_powermode_node
+uperf_stop() {
+    killall uperf
 }
 
-uperf_status()
-{
-    # (uperfd & uperf) or (uperfd & new_uperf & old_uperf)
-    # if [ "$(ps -A | grep "$UPERF_NAME" | wc -l)" -ge 2 ]; then
-    #     echo "Running. Details see $uperf_log_path."
-    # else
-    #     echo "Not running. Reasons see $uperf_log_path."
-    # fi
-    echo "Details see $uperf_log_path."
-}
+uperf_start() {
+    # raise inotify limit in case file sync existed
+    lock_val "1048576" /proc/sys/fs/inotify/max_queued_events
+    lock_val "1048576" /proc/sys/fs/inotify/max_user_watches
+    lock_val "1024" /proc/sys/fs/inotify/max_user_instances
 
-uperf_stop()
-{
-    killall "$UPERF_NAME"
-}
+    rm -f $USER_PATH/uperf_log.txt
+    if [ -f $BIN_PATH/libc++_shared.so ]; then
+        ASAN_LIB="$(ls $BIN_PATH/libclang_rt.asan-*-android.so)"
+        export LD_PRELOAD="$ASAN_LIB $BIN_PATH/libc++_shared.so"
+    fi
+    $BIN_PATH/uperf $USER_PATH/uperf.json -o $USER_PATH/uperf_log.txt
 
-uperf_start()
-{
-    # raise inotify limit
-    mutate "131072" /proc/sys/fs/inotify/max_queued_events
-    mutate "131072" /proc/sys/fs/inotify/max_user_watches
-    mutate "1024" /proc/sys/fs/inotify/max_user_instances
-
-    # cleanup
-    cmd settings delete system min_refresh_rate
-
-    # start uperf
-    "$BIN_DIR/$UPERF_NAME" -o "$uperf_log_path" "$uperf_config_path"
     # waiting for uperf initialization
-    sleep 5
+    sleep 2
     # uperf shouldn't preempt foreground tasks
+	echo "schedutil" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	echo "schedutil" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
     rebuild_process_scan_cache
-    change_task_rt "$UPERF_NAME" "1"
-    pin_proc_on_pwr "$UPERF_NAME"
+    change_task_cgroup "uperf" "background" "cpuset"
 }

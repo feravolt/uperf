@@ -1,35 +1,27 @@
 #!/system/bin/sh
-# Uperf https://github.com/yc9559/uperf/
-# Author: Matt Yang
+#
+# Copyright (C) 2021-2022 Matt Yang
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-BASEDIR="/data/adb/modules/uperf"
-. $BASEDIR/script/libcommon.sh
-. $BASEDIR/script/libuperf.sh
+BASEDIR="$(dirname $(readlink -f "$0"))"
+. $BASEDIR/pathinfo.sh
 
-# $1: power_mode
-apply_power_mode()
-{
-    uperf_set_powermode "$1"
-    echo "Applying $1 done."
-}
-
-# $1: power_mode
-verify_power_mode()
-{
-    # fast -> performance
-    case "$1" in
-        "powersave"|"balance"|"performance") echo "$1" ;;
-        "fast") echo "performance" ;;
-        *) echo "balance" ;;
-    esac
-}
-
-# 1. target from exec parameter
 action="$1"
-if [ "$action" != "" ]; then
-    action="$(verify_power_mode "$action")"
-    apply_power_mode "$action"
-    exit 0
-fi
-
-exit 0
+case "$1" in
+"powersave" | "balance" | "performance" | "fast" | "auto") echo "$1" >"$USER_PATH/cur_powermode.txt" ;;
+"pedestal") echo "performance" >"$USER_PATH/cur_powermode.txt" ;;
+"init") echo "balance" >"$USER_PATH/cur_powermode.txt" ;;
+*) echo "Failed to apply unknown action '$1'." ;;
+esac
